@@ -30,6 +30,7 @@ export default function GenerateurPage() {
     customSandwiches,
     quantites,
     setQuantite,
+    generate,
     addCustomSandwich,
     removeCustomSandwich,
   } = useIngredientsStore();
@@ -159,6 +160,15 @@ export default function GenerateurPage() {
               </div>
             </label>
           ))}
+        </div>
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={generate}
+            className="min-h-[44px] touch-manipulation rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            Recalculer les coûts
+          </button>
         </div>
       </div>
 

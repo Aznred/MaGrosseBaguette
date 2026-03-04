@@ -41,11 +41,11 @@ export default function Home() {
               className="inline-flex items-center rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={!ingredients.length}
             >
-              Générer tous les menus
+              Recalculer les coûts
             </button>
             <div className="flex gap-4 text-xs text-slate-500">
               <span>{ingredients.length} ingrédients importés</span>
-              <span>{menus.length} menus générés</span>
+              <span>{menus.length} menus</span>
             </div>
           </div>
 
@@ -55,8 +55,8 @@ export default function Home() {
             </h2>
             {topMenus.length === 0 ? (
               <p className="text-xs text-slate-500">
-                Importez des ingrédients puis générez les menus pour voir les
-                résultats.
+                Importez des ingrédients et créez des recettes dans le Générateur
+                pour voir les menus.
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
