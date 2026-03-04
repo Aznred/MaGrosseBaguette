@@ -69,7 +69,18 @@ async function readStoreSupabase(): Promise<PersistPayload> {
   }
   const base = normalizePayload(data?.payload ?? null);
 
-  // Compta : préférer la table dédiée app_compta si elle existe
+  // Compta : préférer la table dédiée app_compta (même normalisation que /api/persist/compta)
+  const toRecord = (v: unknown): Record<string, number> => {
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      const out: Record<string, number> = {};
+      for (const [k, val] of Object.entries(v)) {
+        const n = typeof val === "number" ? val : Number(val);
+        if (Number.isFinite(n)) out[String(k)] = n;
+      }
+      return out;
+    }
+    return {};
+  };
   try {
     const { data: comptaRow } = await supabase
       .from("app_compta")
@@ -77,9 +88,9 @@ async function readStoreSupabase(): Promise<PersistPayload> {
       .eq("id", "default")
       .maybeSingle();
     if (comptaRow) {
-      base.ventesParNomSandwich = (comptaRow.ventes_menus as Record<string, number>) ?? base.ventesParNomSandwich;
-      base.ventesBoissons = (comptaRow.ventes_boissons as Record<string, number>) ?? base.ventesBoissons;
-      base.ventesSnacks = (comptaRow.ventes_snacks as Record<string, number>) ?? base.ventesSnacks;
+      base.ventesParNomSandwich = toRecord(comptaRow.ventes_menus);
+      base.ventesBoissons = toRecord(comptaRow.ventes_boissons);
+      base.ventesSnacks = toRecord(comptaRow.ventes_snacks);
     }
   } catch {
     // pas de table app_compta ou erreur → garder les ventes du payload

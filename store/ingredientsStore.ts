@@ -41,29 +41,42 @@ interface IngredientsState {
   persist: () => Promise<boolean>;
   /** Force une sauvegarde immédiate (ex. au blur d’un champ compta) */
   persistNow: () => void;
+  persistComptaNow: () => void;
   removeCustomSandwich: (sandwichId: string) => void;
   removeAutoSandwich: (sandwich: Sandwich) => void;
 }
 
 // Debounce persist pour la compta : sauvegarde automatique en direct (sans bouton)
 let comptaTimeout: ReturnType<typeof setTimeout> | null = null;
-const COMPTA_DEBOUNCE_MS = 600;
+const COMPTA_DEBOUNCE_MS = 400;
+
+function sendComptaToServer(get: () => IngredientsState) {
+  const state = get();
+  fetch("/api/persist/compta", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ventesParNomSandwich: state.ventesParNomSandwich,
+      ventesBoissons: state.ventesBoissons,
+      ventesSnacks: state.ventesSnacks,
+    }),
+  }).catch(() => {});
+}
 
 function schedulePersistCompta(get: () => IngredientsState) {
   if (comptaTimeout) clearTimeout(comptaTimeout);
   comptaTimeout = setTimeout(() => {
     comptaTimeout = null;
-    const state = get();
-    fetch("/api/persist/compta", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ventesParNomSandwich: state.ventesParNomSandwich,
-        ventesBoissons: state.ventesBoissons,
-        ventesSnacks: state.ventesSnacks,
-      }),
-    }).catch(() => {});
+    sendComptaToServer(get);
   }, COMPTA_DEBOUNCE_MS);
+}
+
+function flushPersistCompta(get: () => IngredientsState) {
+  if (comptaTimeout) {
+    clearTimeout(comptaTimeout);
+    comptaTimeout = null;
+  }
+  sendComptaToServer(get);
 }
 
 let persistTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -180,6 +193,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
     const sandwiches = [...autoSandwiches, ...customRecalcules];
     const menus = genererMenus(sandwiches, ingredients, quantites);
     set({ sandwiches, menus });
+    get().persist();
   },
   addCustomSandwich: (payload) => {
     set((state) => {
@@ -274,5 +288,6 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
       .catch(() => false);
   },
   persistNow: () => flushPersist(get),
+  persistComptaNow: () => flushPersistCompta(get),
 }));
 

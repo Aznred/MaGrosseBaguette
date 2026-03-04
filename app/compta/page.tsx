@@ -57,6 +57,7 @@ export default function ComptaPage() {
     setVente,
     setVenteBoisson,
     setVenteSnack,
+    persistComptaNow,
   } = useIngredientsStore();
 
   const [chartType, setChartType] = useState<ChartType>("menus_par_sandwich");
@@ -433,6 +434,7 @@ export default function ComptaPage() {
                       const v = e.target.value;
                       setVente(nom, v === "" ? 0 : parseInt(v, 10) || 0);
                     }}
+                    onBlur={() => persistComptaNow()}
                     placeholder="0"
                     className="min-h-[44px] min-w-[72px] flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-right text-base font-mono text-slate-900 touch-manipulation sm:min-w-0 sm:max-w-[100px] sm:py-1.5 sm:text-sm"
                   />
@@ -485,6 +487,7 @@ export default function ComptaPage() {
                           v === "" ? 0 : parseInt(v, 10) || 0,
                         );
                       }}
+                      onBlur={() => persistComptaNow()}
                       placeholder="0"
                       className="min-h-[44px] min-w-[64px] max-w-[100px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-right text-base font-mono touch-manipulation sm:min-h-0 sm:max-w-none sm:w-16 sm:rounded sm:px-1.5 sm:py-1 sm:text-sm"
                     />
@@ -535,6 +538,7 @@ export default function ComptaPage() {
                           v === "" ? 0 : parseInt(v, 10) || 0,
                         );
                       }}
+                      onBlur={() => persistComptaNow()}
                       placeholder="0"
                       className="min-h-[44px] min-w-[64px] max-w-[100px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-right text-base font-mono touch-manipulation sm:min-h-0 sm:max-w-none sm:w-16 sm:rounded sm:px-1.5 sm:py-1 sm:text-sm"
                     />
