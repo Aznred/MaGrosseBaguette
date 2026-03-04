@@ -322,8 +322,10 @@ export default function GenerateurPage() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    removeCustomSandwich(s.id);
-                    if (detailSandwich?.id === s.id) setDetailSandwich(null);
+                    if (window.confirm(`Supprimer la recette « ${s.nom} » ?`)) {
+                      removeCustomSandwich(s.id);
+                      if (detailSandwich?.id === s.id) setDetailSandwich(null);
+                    }
                   }}
                   className="absolute right-2 top-2 rounded-lg bg-rose-100 px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-200"
                   aria-label="Supprimer cette recette"

@@ -199,21 +199,27 @@ export default function IngredientsPage() {
             {ingredients.map((ing) => (
               <div
                 key={ing.id}
-                className="relative rounded-xl border border-slate-200 bg-slate-50 p-3 pr-10 text-xs"
+                className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs"
               >
-                <button
-                  type="button"
-                  onClick={() => removeIngredient(ing.id)}
-                  className="absolute right-2 top-2 rounded-lg bg-rose-100 px-2 py-1 text-[10px] font-medium text-rose-700 hover:bg-rose-200"
-                  aria-label={`Supprimer ${ing.nom}`}
-                >
-                  Supprimer
-                </button>
-                <div className="flex items-center justify-between gap-2">
-                  <div className="font-medium text-slate-800">{ing.nom}</div>
-                  <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-700">
+                <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1 font-medium text-slate-800 truncate" title={ing.nom}>
+                    {ing.nom}
+                  </div>
+                  <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-700">
                     {ing.categorie}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm(`Supprimer « ${ing.nom} » ? Les recettes qui l'utilisent seront aussi supprimées.`)) {
+                        removeIngredient(ing.id);
+                      }
+                    }}
+                    className="shrink-0 rounded-lg bg-rose-100 px-2 py-1 text-[10px] font-medium text-rose-700 hover:bg-rose-200"
+                    aria-label={`Supprimer ${ing.nom}`}
+                  >
+                    Supprimer
+                  </button>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
                   <span>
