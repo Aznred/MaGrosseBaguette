@@ -41,6 +41,17 @@ function signature(
   return [painId, proteineId, fromageId ?? "", sauceId ?? "", legumeIds.sort().join(",")].join("|");
 }
 
+/** Signature d’un sandwich (pour exclure des générations futures) */
+export function sandwichSignature(s: Sandwich): string {
+  return signature(
+    s.pain.id,
+    s.proteine.id,
+    s.fromage?.id ?? null,
+    s.sauce?.id ?? null,
+    (s.legumes ?? []).map((l) => l.id),
+  );
+}
+
 export function genererSandwichs(
   ingredients: Ingredient[],
   options: GenerateOptions = {},

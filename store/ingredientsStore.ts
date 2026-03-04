@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { Ingredient, Menu, Sandwich } from "@/lib/types";
-import { genererMenus, genererSandwichs } from "@/lib/generator";
+import { genererMenus, genererSandwichs, sandwichSignature } from "@/lib/generator";
 import {
   calculerCoutSandwich,
   QUANTITES_PAR_DEFAUT,
@@ -19,6 +19,7 @@ interface IngredientsState {
   ventesParNomSandwich: Record<string, number>;
   ventesBoissons: Record<string, number>;
   ventesSnacks: Record<string, number>;
+  removedAutoSignatures: string[];
   vegetarienOnly: boolean;
   veganLegumes: boolean;
   sansFromage: boolean;
@@ -37,7 +38,9 @@ interface IngredientsState {
   addCustomSandwich: (payload: Omit<Sandwich, "id" | "cout">) => void;
   toggleFavori: (menuId: string) => void;
   hydrate: (data: PersistPayload) => void;
-  persist: () => void;
+  persist: () => Promise<boolean>;
+  removeCustomSandwich: (sandwichId: string) => void;
+  removeAutoSandwich: (sandwich: Sandwich) => void;
 }
 
 export const useIngredientsStore = create<IngredientsState>((set, get) => ({
@@ -50,6 +53,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
   ventesParNomSandwich: {},
   ventesBoissons: {},
   ventesSnacks: {},
+  removedAutoSignatures: [],
   vegetarienOnly: false,
   veganLegumes: false,
   sansFromage: false,
@@ -114,9 +118,10 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
     get().persist();
   },
   generate: () => {
-    const { ingredients, vegetarienOnly, veganLegumes, sansFromage, sansSauce, quantites, customSandwiches, sandwichNames } = get();
+    const { ingredients, vegetarienOnly, veganLegumes, sansFromage, sansSauce, quantites, customSandwiches, sandwichNames, removedAutoSignatures } = get();
     if (!ingredients.length) return;
-    const autoSandwiches = genererSandwichs(ingredients, {
+    const excluded = new Set(removedAutoSignatures);
+    const autoRaw = genererSandwichs(ingredients, {
       vegetarienOnly,
       veganLegumes,
       sansFromage,
@@ -125,6 +130,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
       sandwichNames,
       count: 25,
     });
+    const autoSandwiches = autoRaw.filter((s) => !excluded.has(sandwichSignature(s)));
     const customRecalcules = customSandwiches.map((s) => ({
       ...s,
       cout: calculerCoutSandwich(s, quantites),
@@ -157,6 +163,39 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         m.id === menuId ? { ...m, favori: !m.favori } : m,
       ),
     })),
+  removeCustomSandwich: (sandwichId) => {
+    set((state) => {
+      const customSandwiches = state.customSandwiches.filter(
+        (s) => s.id !== sandwichId,
+      );
+      const sandwiches = [
+        ...state.sandwiches.filter((s) => s.id !== sandwichId),
+      ];
+      const menus = genererMenus(
+        sandwiches,
+        state.ingredients,
+        state.quantites,
+      );
+      return { customSandwiches, sandwiches, menus };
+    });
+    get().persist();
+  },
+  removeAutoSandwich: (sandwich) => {
+    const sig = sandwichSignature(sandwich);
+    set((state) => {
+      const removedAutoSignatures = state.removedAutoSignatures.includes(sig)
+        ? state.removedAutoSignatures
+        : [...state.removedAutoSignatures, sig];
+      const sandwiches = state.sandwiches.filter((s) => s.id !== sandwich.id);
+      const menus = genererMenus(
+        sandwiches,
+        state.ingredients,
+        state.quantites,
+      );
+      return { removedAutoSignatures, sandwiches, menus };
+    });
+    get().persist();
+  },
   hydrate: (data) => {
     set({
       ingredients: data.ingredients ?? [],
@@ -169,12 +208,13 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
       ventesParNomSandwich: data.ventesParNomSandwich ?? {},
       ventesBoissons: data.ventesBoissons ?? {},
       ventesSnacks: data.ventesSnacks ?? {},
+      removedAutoSignatures: data.removedAutoSignatures ?? [],
     });
     get().generate();
   },
   persist: () => {
     const state = get();
-    fetch("/api/persist", {
+    return fetch("/api/persist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -185,8 +225,11 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         ventesParNomSandwich: state.ventesParNomSandwich,
         ventesBoissons: state.ventesBoissons,
         ventesSnacks: state.ventesSnacks,
+        removedAutoSignatures: state.removedAutoSignatures,
       }),
-    }).catch(() => {});
+    })
+      .then((r) => r.ok)
+      .catch(() => false);
   },
 }));
 

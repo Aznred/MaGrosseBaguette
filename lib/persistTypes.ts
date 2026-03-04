@@ -25,4 +25,6 @@ export interface PersistPayload {
   ventesBoissons?: Record<string, number>;
   /** Nom ingrédient dessert/snack -> quantité vendue à l'unité */
   ventesSnacks?: Record<string, number>;
+  /** Signatures des combinaisons auto exclues (sandwichs générés supprimés) */
+  removedAutoSignatures?: string[];
 }

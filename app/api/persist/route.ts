@@ -21,6 +21,7 @@ function normalizePayload(raw: unknown): PersistPayload {
       ventesParNomSandwich: {},
       ventesBoissons: {},
       ventesSnacks: {},
+      removedAutoSignatures: [],
     };
   }
   return {
@@ -34,6 +35,7 @@ function normalizePayload(raw: unknown): PersistPayload {
     ventesParNomSandwich: (data.ventesParNomSandwich as Record<string, number>) ?? {},
     ventesBoissons: (data.ventesBoissons as Record<string, number>) ?? {},
     ventesSnacks: (data.ventesSnacks as Record<string, number>) ?? {},
+    removedAutoSignatures: Array.isArray(data.removedAutoSignatures) ? data.removedAutoSignatures : [],
   };
 }
 
@@ -109,6 +111,7 @@ export async function POST(req: Request) {
       ventesParNomSandwich: body.ventesParNomSandwich ?? {},
       ventesBoissons: body.ventesBoissons ?? {},
       ventesSnacks: body.ventesSnacks ?? {},
+      removedAutoSignatures: Array.isArray(body.removedAutoSignatures) ? body.removedAutoSignatures : [],
     };
     if (hasSupabaseConfig()) {
       await writeStoreSupabase(payload);

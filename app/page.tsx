@@ -72,11 +72,15 @@ export default function Home() {
                       }}
                       role="button"
                       tabIndex={0}
-                      aria-label={`Voir le détail : Menu classique ${index + 1}`}
+                      aria-label={`Voir le détail : ${menu.sandwich.nom}`}
                       className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 rounded-2xl"
                     >
                       <p className="mb-2 min-h-[1.5rem] text-center text-xs font-semibold text-slate-800">
-                        Menu classique {index + 1}
+                        {menu.sandwich.nom.includes(":")
+                          ? menu.sandwich.nom.split(":")[0].trim()
+                          : menu.sandwich.nom.length > 25
+                            ? menu.sandwich.nom.slice(0, 22) + "…"
+                            : menu.sandwich.nom}
                       </p>
                       <SandwichVisualCard
                         sandwich={menu.sandwich}

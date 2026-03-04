@@ -27,10 +27,13 @@ export default function GenerateurPage() {
   const {
     ingredients,
     sandwiches,
+    customSandwiches,
     quantites,
     setQuantite,
     generate,
     addCustomSandwich,
+    removeCustomSandwich,
+    removeAutoSandwich,
     vegetarienOnly,
     setVegetarienOnly,
     veganLegumes,
@@ -40,6 +43,11 @@ export default function GenerateurPage() {
     sansSauce,
     setSansSauce,
   } = useIngredientsStore();
+
+  const customIds = useMemo(
+    () => new Set(customSandwiches.map((s) => s.id)),
+    [customSandwiches],
+  );
 
   const pains = ingredients.filter((i) => i.categorie === "pain");
   const proteines = ingredients.filter(
@@ -352,7 +360,7 @@ export default function GenerateurPage() {
             {sandwichesFiltres.map((s) => (
               <div
                 key={s.id}
-                className="animate-float-soft cursor-pointer space-y-2"
+                className="animate-float-soft relative cursor-pointer space-y-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
                 onClick={() => setDetailSandwich(s)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") setDetailSandwich(s);
@@ -361,7 +369,23 @@ export default function GenerateurPage() {
                 tabIndex={0}
                 aria-label="Voir le détail du sandwich"
               >
-                <p className="line-clamp-2 text-center text-sm font-semibold text-slate-800">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (customIds.has(s.id)) {
+                      removeCustomSandwich(s.id);
+                    } else {
+                      removeAutoSandwich(s);
+                    }
+                    if (detailSandwich?.id === s.id) setDetailSandwich(null);
+                  }}
+                  className="absolute right-2 top-2 rounded-lg bg-rose-100 px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-200"
+                  aria-label="Supprimer ce sandwich"
+                >
+                  Supprimer
+                </button>
+                <p className="line-clamp-2 pr-20 text-center text-sm font-semibold text-slate-800">
                   {s.nom}
                 </p>
                 <SandwichVisualCard sandwich={s} hideName />
