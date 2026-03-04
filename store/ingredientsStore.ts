@@ -26,6 +26,7 @@ interface IngredientsState {
   setVenteBoisson: (nomIngredient: string, quantite: number) => void;
   setVenteSnack: (nomIngredient: string, quantite: number) => void;
   addIngredients: (items: Ingredient[]) => void;
+  removeIngredient: (ingredientId: string) => void;
   generate: () => void;
   addCustomSandwich: (payload: Omit<Sandwich, "id" | "cout">) => void;
   toggleFavori: (menuId: string) => void;
@@ -152,6 +153,29 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
           ),
       );
       return { ingredients: [...state.ingredients, ...toAdd] };
+    });
+    get().persist();
+  },
+  removeIngredient: (ingredientId) => {
+    set((state) => {
+      const ingredients = state.ingredients.filter((i) => i.id !== ingredientId);
+      const usesIngredient = (s: Sandwich) =>
+        s.pain.id === ingredientId ||
+        s.proteine.id === ingredientId ||
+        (s.fromage?.id === ingredientId) ||
+        (s.sauce?.id === ingredientId) ||
+        (s.legumes?.some((l) => l.id === ingredientId) ?? false);
+      const customSandwiches = state.customSandwiches.filter(
+        (s) => !usesIngredient(s),
+      );
+      const sandwiches = customSandwiches.map((s) => ({
+        ...s,
+        cout: calculerCoutSandwich(s, state.quantites),
+      }));
+      const menus = ingredients.length
+        ? genererMenus(sandwiches, ingredients, state.quantites)
+        : [];
+      return { ingredients, customSandwiches, sandwiches, menus };
     });
     get().persist();
   },

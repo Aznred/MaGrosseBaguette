@@ -44,7 +44,7 @@ function toPoidsTotalAndMode(
 }
 
 export default function IngredientsPage() {
-  const { ingredients, addIngredients } = useIngredientsStore();
+  const { ingredients, addIngredients, removeIngredient } = useIngredientsStore();
   const [nom, setNom] = useState("");
   const [prix, setPrix] = useState("");
   const [quantite, setQuantite] = useState("");
@@ -199,8 +199,16 @@ export default function IngredientsPage() {
             {ingredients.map((ing) => (
               <div
                 key={ing.id}
-                className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs"
+                className="relative rounded-xl border border-slate-200 bg-slate-50 p-3 pr-10 text-xs"
               >
+                <button
+                  type="button"
+                  onClick={() => removeIngredient(ing.id)}
+                  className="absolute right-2 top-2 rounded-lg bg-rose-100 px-2 py-1 text-[10px] font-medium text-rose-700 hover:bg-rose-200"
+                  aria-label={`Supprimer ${ing.nom}`}
+                >
+                  Supprimer
+                </button>
                 <div className="flex items-center justify-between gap-2">
                   <div className="font-medium text-slate-800">{ing.nom}</div>
                   <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-700">
