@@ -45,7 +45,27 @@ interface IngredientsState {
   removeAutoSandwich: (sandwich: Sandwich) => void;
 }
 
-// Debounce persist pour la compta : une seule requête après les changements
+// Debounce persist pour la compta : sauvegarde automatique en direct (sans bouton)
+let comptaTimeout: ReturnType<typeof setTimeout> | null = null;
+const COMPTA_DEBOUNCE_MS = 600;
+
+function schedulePersistCompta(get: () => IngredientsState) {
+  if (comptaTimeout) clearTimeout(comptaTimeout);
+  comptaTimeout = setTimeout(() => {
+    comptaTimeout = null;
+    const state = get();
+    fetch("/api/persist/compta", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ventesParNomSandwich: state.ventesParNomSandwich,
+        ventesBoissons: state.ventesBoissons,
+        ventesSnacks: state.ventesSnacks,
+      }),
+    }).catch(() => {});
+  }, COMPTA_DEBOUNCE_MS);
+}
+
 let persistTimeout: ReturnType<typeof setTimeout> | null = null;
 const PERSIST_DEBOUNCE_MS = 400;
 
@@ -91,7 +111,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         [nomSandwich]: Math.max(0, Math.round(quantite)),
       },
     }));
-    schedulePersist(get);
+    schedulePersistCompta(get);
   },
   setVenteBoisson: (nomIngredient, quantite) => {
     set((state) => ({
@@ -100,7 +120,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         [nomIngredient]: Math.max(0, Math.round(quantite)),
       },
     }));
-    schedulePersist(get);
+    schedulePersistCompta(get);
   },
   setVenteSnack: (nomIngredient, quantite) => {
     set((state) => ({
@@ -109,7 +129,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         [nomIngredient]: Math.max(0, Math.round(quantite)),
       },
     }));
-    schedulePersist(get);
+    schedulePersistCompta(get);
   },
   setSandwichNames: (names) => {
     set({ sandwichNames: names.length ? names : NOMS_SANDWICHS_PAR_DEFAUT });

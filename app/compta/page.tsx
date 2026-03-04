@@ -62,8 +62,11 @@ export default function ComptaPage() {
   const [chartType, setChartType] = useState<ChartType>("menus_par_sandwich");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
+  const [saveErrorMsg, setSaveErrorMsg] = useState<string | null>(null);
+
   const handleSaveCompta = useCallback(async () => {
     setSaveStatus("saving");
+    setSaveErrorMsg(null);
     try {
       const res = await fetch("/api/persist/compta", {
         method: "POST",
@@ -74,15 +77,18 @@ export default function ComptaPage() {
           ventesSnacks,
         }),
       });
+      const data = await res.json().catch(() => ({}));
       const ok = res.ok;
       if (!ok) {
-        const err = await res.json().catch(() => ({}));
-        console.error("Compta save error", err);
+        const msg = (data as { message?: string }).message ?? (data as { error?: string }).error ?? "Erreur de sauvegarde";
+        setSaveErrorMsg(msg);
+        console.error("Compta save error", data);
       }
       setSaveStatus(ok ? "saved" : "error");
       if (ok) setTimeout(() => setSaveStatus("idle"), 3000);
     } catch (e) {
       console.error("Compta save error", e);
+      setSaveErrorMsg("Impossible de contacter le serveur.");
       setSaveStatus("error");
     }
   }, [ventesParNomSandwich, ventesBoissons, ventesSnacks]);
@@ -359,7 +365,7 @@ export default function ComptaPage() {
             Comptabilité
           </h1>
           <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Menus à 5€, boissons et snacks à l&apos;unité. Cliquez sur « Sauvegarder » pour enregistrer les ventes.
+            Menus à 5€, boissons et snacks à l&apos;unité. Les ventes sont enregistrées automatiquement en direct (tout le monde voit les mêmes données).
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
@@ -369,13 +375,15 @@ export default function ComptaPage() {
             disabled={saveStatus === "saving"}
             className="min-h-[44px] w-full rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 touch-manipulation sm:w-auto"
           >
-            {saveStatus === "saving" ? "Sauvegarde…" : "Sauvegarder la comptabilité"}
+            {saveStatus === "saving" ? "Sauvegarde…" : "Sauvegarder maintenant"}
           </button>
           {saveStatus === "saved" && (
             <span className="text-sm font-medium text-emerald-600">Sauvegardé</span>
           )}
           {saveStatus === "error" && (
-            <span className="text-sm font-medium text-rose-600">Erreur de sauvegarde</span>
+            <span className="text-sm font-medium text-rose-600">
+              {saveErrorMsg ?? "Erreur de sauvegarde"}
+            </span>
           )}
           <button
             type="button"

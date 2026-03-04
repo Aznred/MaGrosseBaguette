@@ -4,6 +4,11 @@ import path from "path";
 import { getSupabaseServer, hasSupabaseConfig } from "@/lib/supabase-server";
 
 const COMPTA_ROW_ID = "default";
+
+/** En production (Vercel), la compta doit être en base pour que tout le monde la voie. */
+function isProduction(): boolean {
+  return process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
+}
 const DATA_DIR = path.join(process.cwd(), "data");
 const COMPTA_FILE = path.join(DATA_DIR, "compta.json");
 
@@ -85,6 +90,12 @@ async function writeComptaSupabase(payload: ComptaPayload): Promise<void> {
 
 export async function GET() {
   try {
+    // En production sans Supabase : pas de fichier partagé → retourner vide
+    if (isProduction() && !hasSupabaseConfig()) {
+      return NextResponse.json(ensureObjects(null), {
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      });
+    }
     const data = hasSupabaseConfig()
       ? await readComptaSupabase()
       : await readComptaFile();
@@ -108,6 +119,17 @@ export async function POST(req: Request) {
       ventesBoissons: body.ventesBoissons ?? {},
       ventesSnacks: body.ventesSnacks ?? {},
     };
+
+    // En production : la compta doit être en Supabase pour que tout le monde la voie
+    if (isProduction() && !hasSupabaseConfig()) {
+      return NextResponse.json(
+        {
+          error: "Comptabilité non sauvegardée",
+          message: "Configurez Supabase (variables d’environnement sur Vercel) pour que la comptabilité soit enregistrée et visible par tout le monde. Sans base de données, les ventes ne peuvent pas être partagées.",
+        },
+        { status: 503 },
+      );
+    }
 
     if (hasSupabaseConfig()) {
       await writeComptaSupabase(payload);
