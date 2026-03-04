@@ -67,7 +67,24 @@ async function readStoreSupabase(): Promise<PersistPayload> {
     console.error("Supabase read error", error);
     throw error;
   }
-  return normalizePayload(data?.payload ?? null);
+  const base = normalizePayload(data?.payload ?? null);
+
+  // Compta : préférer la table dédiée app_compta si elle existe
+  try {
+    const { data: comptaRow } = await supabase
+      .from("app_compta")
+      .select("ventes_menus, ventes_boissons, ventes_snacks")
+      .eq("id", "default")
+      .maybeSingle();
+    if (comptaRow) {
+      base.ventesParNomSandwich = (comptaRow.ventes_menus as Record<string, number>) ?? base.ventesParNomSandwich;
+      base.ventesBoissons = (comptaRow.ventes_boissons as Record<string, number>) ?? base.ventesBoissons;
+      base.ventesSnacks = (comptaRow.ventes_snacks as Record<string, number>) ?? base.ventesSnacks;
+    }
+  } catch {
+    // pas de table app_compta ou erreur → garder les ventes du payload
+  }
+  return base;
 }
 
 async function writeStoreSupabase(payload: PersistPayload): Promise<void> {

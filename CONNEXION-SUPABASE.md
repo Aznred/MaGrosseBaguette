@@ -38,7 +38,7 @@ Sans cette table, l’app ne peut pas lire ni enregistrer les données (ingrédi
 7. Tu dois voir un message du type « Success » en bas.
 
 - **Première fois** : la table **app_store** est créée avec une ligne par défaut.
-- **Déjà fait avant** : tu peux relancer le même script sans risque (`create table if not exists` et `on conflict do nothing`). Aucune colonne à ajouter : tout est stocké dans le JSON **payload** (ingrédients, ventes/compta, sandwichs supprimés, etc.).
+- **Déjà fait avant** : tu peux relancer le même script sans risque. Le script crée aussi la table **app_compta** (comptabilité) : les ventes sont enregistrées dans cette table dédiée quand tu cliques sur « Sauvegarder la comptabilité ». Pense à ré-exécuter le script si tu avais une ancienne version sans cette table.
 
 ---
 

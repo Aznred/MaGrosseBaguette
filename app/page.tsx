@@ -31,8 +31,8 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="grid gap-5 md:grid-cols-[2fr,1.1fr]">
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[2fr,1.1fr]">
+        <div className="min-w-0 space-y-4">
           <MetroImport />
           <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <button
@@ -108,7 +108,9 @@ export default function Home() {
           </div>
         </div>
 
-        <CostChart ingredients={ingredients} />
+        <div className="min-w-0">
+          <CostChart ingredients={ingredients} />
+        </div>
       </div>
 
       {detailMenu && (

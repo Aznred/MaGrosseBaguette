@@ -27,3 +27,20 @@ comment on column public.app_store.payload is 'JSON complet : ingredients, custo
 insert into public.app_store (id, payload)
 values ('default', '{}'::jsonb)
 on conflict (id) do nothing;
+
+-- =============================================================================
+-- Table dédiée à la comptabilité (ventes) – sauvegarde fiable
+-- =============================================================================
+create table if not exists public.app_compta (
+  id text primary key default 'default',
+  ventes_menus jsonb not null default '{}'::jsonb,
+  ventes_boissons jsonb not null default '{}'::jsonb,
+  ventes_snacks jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+comment on table public.app_compta is 'Ventes : menus par sandwich, boissons, snacks (comptabilité)';
+
+insert into public.app_compta (id, ventes_menus, ventes_boissons, ventes_snacks)
+values ('default', '{}'::jsonb, '{}'::jsonb, '{}'::jsonb)
+on conflict (id) do nothing;

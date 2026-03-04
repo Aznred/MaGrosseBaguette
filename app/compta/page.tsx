@@ -57,7 +57,6 @@ export default function ComptaPage() {
     setVente,
     setVenteBoisson,
     setVenteSnack,
-    persist,
   } = useIngredientsStore();
 
   const [chartType, setChartType] = useState<ChartType>("menus_par_sandwich");
@@ -65,10 +64,28 @@ export default function ComptaPage() {
 
   const handleSaveCompta = useCallback(async () => {
     setSaveStatus("saving");
-    const ok = await persist();
-    setSaveStatus(ok ? "saved" : "error");
-    if (ok) setTimeout(() => setSaveStatus("idle"), 3000);
-  }, [persist]);
+    try {
+      const res = await fetch("/api/persist/compta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ventesParNomSandwich,
+          ventesBoissons,
+          ventesSnacks,
+        }),
+      });
+      const ok = res.ok;
+      if (!ok) {
+        const err = await res.json().catch(() => ({}));
+        console.error("Compta save error", err);
+      }
+      setSaveStatus(ok ? "saved" : "error");
+      if (ok) setTimeout(() => setSaveStatus("idle"), 3000);
+    } catch (e) {
+      console.error("Compta save error", e);
+      setSaveStatus("error");
+    }
+  }, [ventesParNomSandwich, ventesBoissons, ventesSnacks]);
 
   const boissons = useMemo(
     () => ingredients.filter((i) => i.categorie === "boisson"),
