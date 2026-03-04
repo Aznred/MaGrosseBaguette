@@ -4,8 +4,9 @@ import path from "path";
 import type { PersistPayload } from "@/lib/persistTypes";
 import { NOMS_SANDWICHS_PAR_DEFAUT } from "@/lib/persistTypes";
 import { QUANTITES_PAR_DEFAUT } from "@/lib/pricing";
+import { getSupabaseServer, hasSupabaseConfig } from "@/lib/supabase-server";
 
-const STORE_KEY = "sandwich-app:store";
+const STORE_ROW_ID = "default";
 const DATA_DIR = path.join(process.cwd(), "data");
 const STORE_FILE = path.join(DATA_DIR, "store.json");
 
@@ -36,7 +37,7 @@ function normalizePayload(raw: unknown): PersistPayload {
   };
 }
 
-// ——— Stockage fichier (local / dev sans Redis)
+// ——— Stockage fichier (local / dev sans Supabase)
 async function readStoreFile(): Promise<PersistPayload> {
   try {
     const raw = await readFile(STORE_FILE, "utf-8");
@@ -51,35 +52,39 @@ async function writeStoreFile(payload: PersistPayload): Promise<void> {
   await writeFile(STORE_FILE, JSON.stringify(payload, null, 2), "utf-8");
 }
 
-// ——— Stockage Redis (production Vercel)
-async function readStoreRedis(): Promise<PersistPayload> {
-  const { Redis } = await import("@upstash/redis");
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-  });
-  const raw = await redis.get(STORE_KEY);
-  return normalizePayload(raw);
+// ——— Stockage Supabase (production)
+async function readStoreSupabase(): Promise<PersistPayload> {
+  const supabase = getSupabaseServer();
+  const { data, error } = await supabase
+    .from("app_store")
+    .select("payload")
+    .eq("id", STORE_ROW_ID)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Supabase read error", error);
+    throw error;
+  }
+  return normalizePayload(data?.payload ?? null);
 }
 
-async function writeStoreRedis(payload: PersistPayload): Promise<void> {
-  const { Redis } = await import("@upstash/redis");
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-  });
-  await redis.set(STORE_KEY, payload);
-}
+async function writeStoreSupabase(payload: PersistPayload): Promise<void> {
+  const supabase = getSupabaseServer();
+  const { error } = await supabase
+    .from("app_store")
+    .upsert({ id: STORE_ROW_ID, payload }, { onConflict: "id" });
 
-function useRedis(): boolean {
-  return Boolean(
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-  );
+  if (error) {
+    console.error("Supabase write error", error);
+    throw error;
+  }
 }
 
 export async function GET() {
   try {
-    const data = useRedis() ? await readStoreRedis() : await readStoreFile();
+    const data = hasSupabaseConfig()
+      ? await readStoreSupabase()
+      : await readStoreFile();
     return NextResponse.json(data);
   } catch (e) {
     console.error("Persist GET error", e);
@@ -105,8 +110,8 @@ export async function POST(req: Request) {
       ventesBoissons: body.ventesBoissons ?? {},
       ventesSnacks: body.ventesSnacks ?? {},
     };
-    if (useRedis()) {
-      await writeStoreRedis(payload);
+    if (hasSupabaseConfig()) {
+      await writeStoreSupabase(payload);
     } else {
       await writeStoreFile(payload);
     }
