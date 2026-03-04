@@ -55,11 +55,16 @@ export default function IngredientsPage() {
   const handleAddProduct = (e: React.FormEvent) => {
     e.preventDefault();
     const nomTrim = nom.trim();
-    const prixNum = parseFloat(prix.replace(",", "."));
-    const quantiteNum = parseFloat(quantite.replace(",", "."));
-    if (!nomTrim || !Number.isFinite(prixNum) || prixNum < 0 || !Number.isFinite(quantiteNum) || quantiteNum <= 0) return;
+    const prixStr = prix.replace(",", ".").trim();
+    const quantiteStr = quantite.replace(",", ".").trim();
+    const prixNum = parseFloat(prixStr);
+    const quantiteNum = parseFloat(quantiteStr);
+    if (!nomTrim || !Number.isFinite(prixNum) || prixNum < 0) return;
+    if (!Number.isFinite(quantiteNum) || quantiteNum <= 0) return;
 
     const { poidsTotal, modeTarif } = toPoidsTotalAndMode(quantiteNum, unite);
+    if (poidsTotal <= 0) return;
+
     const newIngredient: Ingredient = {
       id: `manual-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       nom: nomTrim,
@@ -93,15 +98,15 @@ export default function IngredientsPage() {
         <h2 className="mb-3 text-sm font-semibold text-slate-900">
           Ajouter un produit sans CSV
         </h2>
-        <form onSubmit={handleAddProduct} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <form onSubmit={handleAddProduct} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-slate-600">Nom</span>
+            <span className="text-xs font-medium text-slate-600">Nom du produit</span>
             <input
               type="text"
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               placeholder="Ex: Poulet fermier"
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+              className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900"
               required
             />
           </label>
@@ -113,26 +118,30 @@ export default function IngredientsPage() {
               value={prix}
               onChange={(e) => setPrix(e.target.value)}
               placeholder="Ex: 12,50"
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+              className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900"
               required
             />
           </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-slate-600">Quantité</span>
-            <div className="flex gap-2">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-slate-600">Quantité</span>
               <input
                 type="text"
                 inputMode="decimal"
                 value={quantite}
                 onChange={(e) => setQuantite(e.target.value)}
                 placeholder="Ex: 500"
-                className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+                className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900"
                 required
               />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-slate-600">Unité (g, kg, L, pièce…)</span>
               <select
                 value={unite}
                 onChange={(e) => setUnite(e.target.value as typeof unite)}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+                className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800"
+                aria-label="Choisir l'unité"
               >
                 {UNIT_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -140,14 +149,15 @@ export default function IngredientsPage() {
                   </option>
                 ))}
               </select>
-            </div>
-          </label>
+            </label>
+          </div>
           <label className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-slate-600">Type</span>
+            <span className="text-xs font-medium text-slate-600">Catégorie (type d’ingrédient)</span>
             <select
               value={categorie}
               onChange={(e) => setCategorie(e.target.value as IngredientCategory)}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+              className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800"
+              aria-label="Choisir la catégorie"
             >
               {CATEGORY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -156,23 +166,21 @@ export default function IngredientsPage() {
               ))}
             </select>
           </label>
-          <label className="flex items-center gap-2 sm:col-span-2 lg:col-span-4">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={vegetarien}
               onChange={(e) => setVegetarien(e.target.checked)}
-              className="rounded border-slate-300"
+              className="h-4 w-4 rounded border-slate-300"
             />
             <span className="text-xs text-slate-600">Végétarien</span>
           </label>
-          <div className="sm:col-span-2 lg:col-span-4">
-            <button
-              type="submit"
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-            >
-              Ajouter le produit
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="min-h-[44px] rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800"
+          >
+            Ajouter le produit
+          </button>
         </form>
       </div>
 

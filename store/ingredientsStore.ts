@@ -39,8 +39,30 @@ interface IngredientsState {
   toggleFavori: (menuId: string) => void;
   hydrate: (data: PersistPayload) => void;
   persist: () => Promise<boolean>;
+  /** Force une sauvegarde immédiate (ex. au blur d’un champ compta) */
+  persistNow: () => void;
   removeCustomSandwich: (sandwichId: string) => void;
   removeAutoSandwich: (sandwich: Sandwich) => void;
+}
+
+// Debounce persist pour la compta : une seule requête après les changements
+let persistTimeout: ReturnType<typeof setTimeout> | null = null;
+const PERSIST_DEBOUNCE_MS = 400;
+
+function schedulePersist(get: () => IngredientsState) {
+  if (persistTimeout) clearTimeout(persistTimeout);
+  persistTimeout = setTimeout(() => {
+    persistTimeout = null;
+    get().persist();
+  }, PERSIST_DEBOUNCE_MS);
+}
+
+function flushPersist(get: () => IngredientsState) {
+  if (persistTimeout) {
+    clearTimeout(persistTimeout);
+    persistTimeout = null;
+  }
+  get().persist();
 }
 
 export const useIngredientsStore = create<IngredientsState>((set, get) => ({
@@ -69,7 +91,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         [nomSandwich]: Math.max(0, Math.round(quantite)),
       },
     }));
-    get().persist();
+    schedulePersist(get);
   },
   setVenteBoisson: (nomIngredient, quantite) => {
     set((state) => ({
@@ -78,7 +100,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         [nomIngredient]: Math.max(0, Math.round(quantite)),
       },
     }));
-    get().persist();
+    schedulePersist(get);
   },
   setVenteSnack: (nomIngredient, quantite) => {
     set((state) => ({
@@ -87,7 +109,7 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         [nomIngredient]: Math.max(0, Math.round(quantite)),
       },
     }));
-    get().persist();
+    schedulePersist(get);
   },
   setSandwichNames: (names) => {
     set({ sandwichNames: names.length ? names : NOMS_SANDWICHS_PAR_DEFAUT });
@@ -231,5 +253,6 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
       .then((r) => r.ok)
       .catch(() => false);
   },
+  persistNow: () => flushPersist(get),
 }));
 

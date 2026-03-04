@@ -57,6 +57,7 @@ export default function ComptaPage() {
     setVente,
     setVenteBoisson,
     setVenteSnack,
+    persistNow,
   } = useIngredientsStore();
 
   const [chartType, setChartType] = useState<ChartType>("menus_par_sandwich");
@@ -430,6 +431,7 @@ export default function ComptaPage() {
                     const v = e.target.value;
                     setVente(nom, v === "" ? 0 : parseInt(v, 10) || 0);
                   }}
+                  onBlur={() => persistNow()}
                   placeholder="0"
                   className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-right text-sm font-mono text-slate-900"
                 />
@@ -481,6 +483,7 @@ export default function ComptaPage() {
                           v === "" ? 0 : parseInt(v, 10) || 0,
                         );
                       }}
+                      onBlur={() => persistNow()}
                       placeholder="0"
                       className="w-16 rounded border border-slate-300 bg-white px-1.5 py-1 text-right text-sm font-mono"
                     />
@@ -531,6 +534,7 @@ export default function ComptaPage() {
                           v === "" ? 0 : parseInt(v, 10) || 0,
                         );
                       }}
+                      onBlur={() => persistNow()}
                       placeholder="0"
                       className="w-16 rounded border border-slate-300 bg-white px-1.5 py-1 text-right text-sm font-mono"
                     />

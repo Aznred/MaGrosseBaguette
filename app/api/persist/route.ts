@@ -87,7 +87,12 @@ export async function GET() {
     const data = hasSupabaseConfig()
       ? await readStoreSupabase()
       : await readStoreFile();
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        Pragma: "no-cache",
+      },
+    });
   } catch (e) {
     console.error("Persist GET error", e);
     return NextResponse.json(

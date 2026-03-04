@@ -25,6 +25,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Safe area pour encoche / barre d'accueil mobile */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
 @keyframes floatSoft {
   0% {
     transform: translateY(0px);
