@@ -34,4 +34,21 @@ Le site écoute sur le port 3000 par défaut. Configure un reverse proxy (nginx)
 
 ---
 
-**Note :** L’API de persistance (`/api/persist`) enregistre les données dans le fichier `data/store.json` sur le serveur. Sur Vercel/Netlify (serverless), le système de fichiers est éphémère : les données ne sont pas conservées entre les déploiements. Pour une persistance en production, il faudrait brancher une base de données (ex. Vercel Postgres, Supabase) ou un stockage externe.
+## Persistance des données en ligne (Vercel)
+
+Pour que **tout le monde** ait accès aux mêmes données (ingrédients importés en CSV, sandwichs créés, compta) quand le site est publié sur Vercel, il faut une base Redis.
+
+### Configurer Upstash Redis (gratuit)
+
+1. Sur [vercel.com](https://vercel.com), ouvre ton projet → **Storage** → **Create Database** → choisis **Upstash Redis** (ou va sur [Vercel Marketplace](https://vercel.com/marketplace), cherche "Upstash Redis", et connecte l’intégration à ton projet).
+2. Une fois la base créée, **lie-la au projet** (bouton "Connect Project" / "Link").
+3. Vercel ajoute automatiquement les variables d’environnement :
+   - `UPSTASH_REDIS_REST_URL`
+   - `UPSTASH_REDIS_REST_TOKEN`
+4. Redéploie le projet (ou déclenche un nouveau déploiement).
+
+Dès que ces variables sont définies, l’API `/api/persist` utilise Redis au lieu du fichier : les données sont partagées pour tous les visiteurs (ingrédients CSV, sandwichs personnalisés, ventes / compta).
+
+### En local (sans Redis)
+
+Sans variables Upstash, l’app utilise le fichier `data/store.json` dans le dossier du projet. Aucune config supplémentaire.
