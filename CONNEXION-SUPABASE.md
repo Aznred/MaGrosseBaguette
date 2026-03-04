@@ -25,9 +25,9 @@ Tu as maintenant :
 
 ---
 
-## Étape 3 : Créer la table dans Supabase
+## Étape 3 : Créer ou mettre à jour la table dans Supabase
 
-Sans cette table, l’app ne peut pas lire ni enregistrer les données.
+Sans cette table, l’app ne peut pas lire ni enregistrer les données (ingrédients, sandwichs, compta, etc.).
 
 1. Dans le dashboard Supabase (menu de gauche), clique sur **SQL Editor**.
 2. Clique sur **New query**.
@@ -35,7 +35,10 @@ Sans cette table, l’app ne peut pas lire ni enregistrer les données.
 4. Copie **tout** le contenu de ce fichier.
 5. Colle-le dans l’éditeur SQL Supabase.
 6. Clique sur **Run** (ou Ctrl+Entrée).
-7. Tu dois voir un message du type « Success » en bas. La table **app_store** est créée.
+7. Tu dois voir un message du type « Success » en bas.
+
+- **Première fois** : la table **app_store** est créée avec une ligne par défaut.
+- **Déjà fait avant** : tu peux relancer le même script sans risque (`create table if not exists` et `on conflict do nothing`). Aucune colonne à ajouter : tout est stocké dans le JSON **payload** (ingrédients, ventes/compta, sandwichs supprimés, etc.).
 
 ---
 
@@ -97,4 +100,6 @@ Sur Vercel, après le redeploy, fais la même chose sur l’URL de ton site : le
 | `NEXT_PUBLIC_SUPABASE_URL`     | Connect to project → Project URL | `https://xxxxx.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY`    | API settings → service_role (Reveal + Copy) | `eyJhbGc...` (longue chaîne) |
 
-Une fois ces deux variables définies (en local dans `.env.local` et sur Vercel dans Settings → Environment Variables) et la table créée (étape 3), la sauvegarde CSV, sandwichs et compta est bien enregistrée dans Supabase.
+Une fois ces deux variables définies (en local dans `.env.local` et sur Vercel dans Settings → Environment Variables) et la table créée (étape 3), tout est enregistré dans Supabase : ingrédients (CSV ou ajout manuel), sandwichs personnalisés, ventes / compta (menus, boissons, snacks vendus), et la liste des sandwichs générés que tu as supprimés.
+
+**Mettre à jour Supabase** : si tu as déjà créé la table auparavant, pas besoin de modifier la structure. Le script `supabase/schema.sql` est à jour ; tu peux le ré-exécuter dans le SQL Editor pour t’assurer que tout est bon (aucune perte de données, la table et le payload restent compatibles).

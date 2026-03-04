@@ -45,22 +45,27 @@ export function MenuTable({ menus }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-white p-3">
-        <input
-          type="text"
-          placeholder="Recherche sandwich/boisson/dessert"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-60 rounded-md border border-slate-200 bg-white px-2 py-1 text-sm"
-        />
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
+        <div className="min-w-0 flex-1 sm:max-w-[280px]">
+          <label className="mb-1 block text-xs font-medium text-slate-500">
+            Recherche
+          </label>
+          <input
+            type="text"
+            placeholder="Sandwich, boisson, dessert..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="min-h-[44px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-base text-slate-900 touch-manipulation sm:min-h-0 sm:py-1 sm:text-sm"
+          />
+        </div>
         <div>
-          <label className="text-xs font-medium text-slate-500">
+          <label className="mb-1 block text-xs font-medium text-slate-500">
             Prix max (€)
           </label>
           <input
             type="number"
             step="0.1"
-            className="mt-1 w-28 rounded-md border border-slate-200 bg-white px-2 py-1 text-sm"
+            className="min-h-[44px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-base touch-manipulation sm:min-h-0 sm:w-28 sm:rounded-md sm:py-1 sm:text-sm"
             value={maxPrix ?? ""}
             onChange={(e) =>
               setMaxPrix(e.target.value ? parseFloat(e.target.value) : null)
@@ -68,13 +73,13 @@ export function MenuTable({ menus }: Props) {
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-500">
+          <label className="mb-1 block text-xs font-medium text-slate-500">
             Coût sandwich max (€)
           </label>
           <input
             type="number"
             step="0.1"
-            className="mt-1 w-32 rounded-md border border-slate-200 bg-white px-2 py-1 text-sm"
+            className="min-h-[44px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-base touch-manipulation sm:min-h-0 sm:w-32 sm:rounded-md sm:py-1 sm:text-sm"
             value={maxCoutSandwich ?? ""}
             onChange={(e) =>
               setMaxCoutSandwich(
@@ -83,47 +88,49 @@ export function MenuTable({ menus }: Props) {
             }
           />
         </div>
-        <label className="flex items-center gap-2 text-sm text-slate-600">
-          <input
-            type="checkbox"
-            checked={vegetarienOnly}
-            onChange={(e) => setVegetarienOnly(e.target.checked)}
-            className="rounded border-slate-300"
-          />
-          Végétarien uniquement
-        </label>
-        <label className="flex items-center gap-2 text-sm text-slate-600">
-          <input
-            type="checkbox"
-            checked={showFavorisOnly}
-            onChange={(e) => setShowFavorisOnly(e.target.checked)}
-            className="rounded border-slate-300"
-          />
-          Favoris
-        </label>
-        <label className="flex items-center gap-2 text-sm text-slate-600">
-          <input
-            type="checkbox"
-            checked={underBudgetOnly}
-            onChange={(e) => setUnderBudgetOnly(e.target.checked)}
-            className="rounded border-slate-300"
-          />
-          Menus ≤ 3€ (sandwich + boisson + dessert + emballage)
-        </label>
+        <div className="flex flex-wrap gap-4 pt-1 sm:pt-0">
+          <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-sm text-slate-600 sm:min-h-0">
+            <input
+              type="checkbox"
+              checked={vegetarienOnly}
+              onChange={(e) => setVegetarienOnly(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            Végétarien uniquement
+          </label>
+          <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-sm text-slate-600 sm:min-h-0">
+            <input
+              type="checkbox"
+              checked={showFavorisOnly}
+              onChange={(e) => setShowFavorisOnly(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            Favoris
+          </label>
+          <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-sm text-slate-600 sm:min-h-0">
+            <input
+              type="checkbox"
+              checked={underBudgetOnly}
+              onChange={(e) => setUnderBudgetOnly(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            Menus ≤ 3€
+          </label>
+        </div>
         <button
           type="button"
           onClick={() => exportMenusToExcel(filtered, quantites, sandwiches)}
-          className="ml-auto inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+          className="min-h-[44px] w-full shrink-0 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 touch-manipulation sm:ml-auto sm:w-auto sm:py-2 sm:text-xs"
         >
           Exporter en Excel
         </button>
       </div>
 
-      <div className="overflow-auto rounded-xl border border-slate-300 bg-white shadow-sm">
-        <table className="min-w-[1200px] border-collapse text-left text-sm">
+      <div className="-mx-1 overflow-x-auto rounded-xl border border-slate-300 bg-white shadow-sm sm:mx-0">
+        <table className="min-w-[800px] border-collapse text-left text-sm sm:min-w-[1200px]">
           <thead className="sticky top-0 z-10 bg-slate-100 text-xs uppercase text-slate-600">
             <tr>
-              <th className="sticky left-0 z-20 border border-slate-300 bg-slate-100 px-3 py-2">
+              <th className="sticky left-0 z-20 min-w-[140px] border border-slate-300 bg-slate-100 px-2 py-2 sm:min-w-0 sm:px-3">
                 Nom du sandwich
               </th>
               <th className="border border-slate-300 px-3 py-2">Ingrédients</th>
@@ -154,8 +161,8 @@ export function MenuTable({ menus }: Props) {
                   tabIndex={0}
                   aria-label="Voir le détail du menu"
                 >
-                  <td className="sticky left-0 border border-slate-300 bg-inherit px-3 py-2 font-medium text-slate-800">
-                    {menu.sandwich.nom}
+                  <td className="sticky left-0 max-w-[180px] border border-slate-300 bg-inherit px-2 py-2 font-medium text-slate-800 sm:max-w-none sm:px-3">
+                    <span className="line-clamp-2 sm:line-clamp-none">{menu.sandwich.nom}</span>
                   </td>
                   <td className="border border-slate-300 px-3 py-2 text-slate-600">
                     {[

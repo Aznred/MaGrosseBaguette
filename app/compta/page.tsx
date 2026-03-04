@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import {
   ArcElement,
@@ -57,10 +57,18 @@ export default function ComptaPage() {
     setVente,
     setVenteBoisson,
     setVenteSnack,
-    persistNow,
+    persist,
   } = useIngredientsStore();
 
   const [chartType, setChartType] = useState<ChartType>("menus_par_sandwich");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+
+  const handleSaveCompta = useCallback(async () => {
+    setSaveStatus("saving");
+    const ok = await persist();
+    setSaveStatus(ok ? "saved" : "error");
+    if (ok) setTimeout(() => setSaveStatus("idle"), 3000);
+  }, [persist]);
 
   const boissons = useMemo(
     () => ingredients.filter((i) => i.categorie === "boisson"),
@@ -328,22 +336,38 @@ export default function ComptaPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
+      <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
             Comptabilité
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Menus à 5€, boissons et snacks à l&apos;unité (prix = coût × 2 arrondi à 0,10 €). Les ventes sont sauvegardées automatiquement.
+          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+            Menus à 5€, boissons et snacks à l&apos;unité. Cliquez sur « Sauvegarder » pour enregistrer les ventes.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleExportExcel}
-          className="inline-flex rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-        >
-          Exporter la compta en Excel
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+          <button
+            type="button"
+            onClick={handleSaveCompta}
+            disabled={saveStatus === "saving"}
+            className="min-h-[44px] w-full rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 touch-manipulation sm:w-auto"
+          >
+            {saveStatus === "saving" ? "Sauvegarde…" : "Sauvegarder la comptabilité"}
+          </button>
+          {saveStatus === "saved" && (
+            <span className="text-sm font-medium text-emerald-600">Sauvegardé</span>
+          )}
+          {saveStatus === "error" && (
+            <span className="text-sm font-medium text-rose-600">Erreur de sauvegarde</span>
+          )}
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="min-h-[44px] w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 touch-manipulation sm:w-auto"
+          >
+            Exporter en Excel
+          </button>
+        </div>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -417,25 +441,26 @@ export default function ComptaPage() {
             {nomsUniques.map((nom) => (
               <div
                 key={nom}
-                className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-3"
+                className="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-slate-50/50 p-3 sm:flex-row sm:items-center sm:gap-3"
               >
                 <label className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">
                   {nom}
                 </label>
-                <input
-                  type="number"
-                  min={0}
-                  step={1}
-                  value={ventesParNomSandwich[nom] ?? ""}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setVente(nom, v === "" ? 0 : parseInt(v, 10) || 0);
-                  }}
-                  onBlur={() => persistNow()}
-                  placeholder="0"
-                  className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-right text-sm font-mono text-slate-900"
-                />
-                <span className="text-xs text-slate-500">vendus</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={ventesParNomSandwich[nom] ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setVente(nom, v === "" ? 0 : parseInt(v, 10) || 0);
+                    }}
+                    placeholder="0"
+                    className="min-h-[44px] min-w-[72px] flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-right text-base font-mono text-slate-900 touch-manipulation sm:min-w-0 sm:max-w-[100px] sm:py-1.5 sm:text-sm"
+                  />
+                  <span className="shrink-0 text-xs text-slate-500">vendus</span>
+                </div>
               </div>
             ))}
           </div>
@@ -463,7 +488,7 @@ export default function ComptaPage() {
                 return (
                   <div
                     key={ing.id}
-                    className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/50 p-2"
+                    className="flex flex-col gap-1.5 rounded-lg border border-slate-200 bg-slate-50/50 p-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 sm:p-2"
                   >
                     <span className="min-w-0 flex-1 truncate text-sm text-slate-700">
                       {cleanIngredientName(ing.nom)}
@@ -483,9 +508,8 @@ export default function ComptaPage() {
                           v === "" ? 0 : parseInt(v, 10) || 0,
                         );
                       }}
-                      onBlur={() => persistNow()}
                       placeholder="0"
-                      className="w-16 rounded border border-slate-300 bg-white px-1.5 py-1 text-right text-sm font-mono"
+                      className="min-h-[44px] min-w-[64px] max-w-[100px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-right text-base font-mono touch-manipulation sm:min-h-0 sm:max-w-none sm:w-16 sm:rounded sm:px-1.5 sm:py-1 sm:text-sm"
                     />
                   </div>
                 );
@@ -514,7 +538,7 @@ export default function ComptaPage() {
                 return (
                   <div
                     key={ing.id}
-                    className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/50 p-2"
+                    className="flex flex-col gap-1.5 rounded-lg border border-slate-200 bg-slate-50/50 p-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 sm:p-2"
                   >
                     <span className="min-w-0 flex-1 truncate text-sm text-slate-700">
                       {cleanIngredientName(ing.nom)}
@@ -534,9 +558,8 @@ export default function ComptaPage() {
                           v === "" ? 0 : parseInt(v, 10) || 0,
                         );
                       }}
-                      onBlur={() => persistNow()}
                       placeholder="0"
-                      className="w-16 rounded border border-slate-300 bg-white px-1.5 py-1 text-right text-sm font-mono"
+                      className="min-h-[44px] min-w-[64px] max-w-[100px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-right text-base font-mono touch-manipulation sm:min-h-0 sm:max-w-none sm:w-16 sm:rounded sm:px-1.5 sm:py-1 sm:text-sm"
                     />
                   </div>
                 );

@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: "/ingredients", label: "Ingrédients" },
   { href: "/generateur", label: "Générateur" },
   { href: "/planificateur", label: "Planificateur" },
-  { href: "/compta", label: "Compta" },
+  { href: "/compta", label: "Comptabilité" },
 ];
 
 export function LayoutShell({ children }: { children: ReactNode }) {

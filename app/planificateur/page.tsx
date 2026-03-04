@@ -11,21 +11,21 @@ export default function PlanificateurPage() {
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
             Planificateur de menus
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
             Menus complets (sandwich + moyenne boissons et desserts + emballage). Par défaut
-            : uniquement les menus à 3€ ou moins. Cliquez sur une ligne pour le détail.
+            : menus à 3€ ou moins. Cliquez sur une ligne pour le détail.
           </p>
         </div>
-        <div className="text-xs text-slate-500">
+        <div className="shrink-0 text-xs text-slate-500">
           {menus.length} menus générés
         </div>
       </header>
 
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
           <p className="text-xs text-slate-500">Menus générés</p>
           <p className="text-xl font-semibold text-slate-900">{menus.length}</p>
