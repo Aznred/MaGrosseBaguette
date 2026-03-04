@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { ReactNode } from "react";
 import { PersistLoader } from "@/components/PersistLoader";
 
 const NAV_ITEMS = [
@@ -16,18 +15,6 @@ const NAV_ITEMS = [
 
 export function LayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { data: session, status } = useSession();
-
-  useEffect(() => {
-    if (status !== "authenticated") return;
-    fetch("/api/me")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.allowed === false) router.replace("/access-denied");
-      })
-      .catch(() => {});
-  }, [status, router]);
 
   return (
     <div className="flex min-h-screen min-h-[100dvh] bg-slate-100 text-slate-900">
@@ -83,21 +70,9 @@ export function LayoutShell({ children }: { children: ReactNode }) {
             <div className="min-w-0 truncate text-sm font-medium text-slate-800">
               Optimisez vos coûts de menus en un coup d&apos;œil.
             </div>
-            <div className="flex flex-shrink-0 items-center gap-2">
-              <span className="hidden max-w-[120px] truncate text-xs text-slate-500 sm:inline" title={session?.user?.email ?? undefined}>
-                {session?.user?.name ?? session?.user?.email ?? "Compte"}
-              </span>
-              <button
-                type="button"
-                onClick={() => signOut({ callbackUrl: "/login" })}
-                className="rounded-lg px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              >
-                Déconnexion
-              </button>
-              <span className="hidden rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 sm:inline">
-                Menu ≤ 3€
-              </span>
-            </div>
+            <span className="hidden flex-shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 sm:inline">
+              Menu ≤ 3€
+            </span>
           </div>
         </div>
         <div className="min-h-0 flex-1 px-3 py-4 sm:px-4 sm:py-6 md:px-8 md:py-8">
@@ -108,7 +83,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       {/* Navigation mobile (bas d'écran) */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-slate-200 bg-white/95 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] safe-area-pb md:hidden"
-               aria-label="Navigation principale"
+        aria-label="Navigation principale"
       >
         {NAV_ITEMS.map((item) => {
           const active =
@@ -133,5 +108,3 @@ export function LayoutShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
-
-

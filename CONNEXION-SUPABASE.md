@@ -37,8 +37,8 @@ Sans cette table, l’app ne peut pas lire ni enregistrer les données (ingrédi
 6. Clique sur **Run** (ou Ctrl+Entrée).
 7. Tu dois voir un message du type « Success » en bas.
 
-- **Première fois** : les tables **app_store**, **app_compta** et **app_users** sont créées.
-- **Déjà fait avant** : tu peux relancer le même script sans risque. Le script crée aussi la table **app_users** (utilisateurs autorisés pour le login Forge EPITA) si elle n’existe pas. Voir **AUTH-FORGE.md** pour ajouter des utilisateurs.
+- **Première fois** : les tables **app_store** et **app_compta** sont créées.
+- **Déjà fait avant** : tu peux relancer le même script sans risque.
 
 ---
 
@@ -100,6 +100,6 @@ Sur Vercel, après le redeploy, fais la même chose sur l’URL de ton site : le
 | `NEXT_PUBLIC_SUPABASE_URL`     | Connect to project → Project URL | `https://xxxxx.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY`    | API settings → service_role (Reveal + Copy) | `eyJhbGc...` (longue chaîne) |
 
-Une fois ces deux variables définies (en local dans `.env.local` et sur Vercel dans Settings → Environment Variables) et les tables créées (étape 3), tout est enregistré dans Supabase. Pour le **login et les permissions** (Forge EPITA), ajoute aussi les variables décrites dans **AUTH-FORGE.md** et insère les utilisateurs autorisés dans **app_users**.
+Une fois ces deux variables définies (en local dans `.env.local` et sur Vercel dans Settings → Environment Variables) et les tables créées (étape 3), tout est enregistré dans Supabase.
 
 **Mettre à jour Supabase** : si tu as déjà créé la table auparavant, pas besoin de modifier la structure. Le script `supabase/schema.sql` est à jour ; tu peux le ré-exécuter dans le SQL Editor pour t’assurer que tout est bon (aucune perte de données, la table et le payload restent compatibles).
