@@ -14,7 +14,13 @@ export function PersistLoader() {
     fetch("/api/persist")
       .then((r) => r.json())
       .then((data: PersistPayload) => {
-        if (data.ingredients?.length || data.customSandwiches?.length) {
+        const hasIngredients = (data.ingredients?.length ?? 0) > 0;
+        const hasCustomSandwiches = (data.customSandwiches?.length ?? 0) > 0;
+        const hasVentes =
+          (data.ventesParNomSandwich && Object.keys(data.ventesParNomSandwich).length > 0) ||
+          (data.ventesBoissons && Object.keys(data.ventesBoissons).length > 0) ||
+          (data.ventesSnacks && Object.keys(data.ventesSnacks).length > 0);
+        if (hasIngredients || hasCustomSandwiches || hasVentes) {
           hydrate(data);
         }
       })
