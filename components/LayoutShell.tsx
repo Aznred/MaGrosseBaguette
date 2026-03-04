@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 import { PersistLoader } from "@/components/PersistLoader";
 
 const NAV_ITEMS = [
@@ -15,6 +16,18 @@ const NAV_ITEMS = [
 
 export function LayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.allowed === false) router.replace("/access-denied");
+      })
+      .catch(() => {});
+  }, [status, router]);
 
   return (
     <div className="flex min-h-screen min-h-[100dvh] bg-slate-100 text-slate-900">
@@ -70,9 +83,21 @@ export function LayoutShell({ children }: { children: ReactNode }) {
             <div className="min-w-0 truncate text-sm font-medium text-slate-800">
               Optimisez vos coûts de menus en un coup d&apos;œil.
             </div>
-            <span className="hidden flex-shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 sm:inline">
-              Menu ≤ 3€
-            </span>
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <span className="hidden max-w-[120px] truncate text-xs text-slate-500 sm:inline" title={session?.user?.email ?? undefined}>
+                {session?.user?.name ?? session?.user?.email ?? "Compte"}
+              </span>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="rounded-lg px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              >
+                Déconnexion
+              </button>
+              <span className="hidden rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 sm:inline">
+                Menu ≤ 3€
+              </span>
+            </div>
           </div>
         </div>
         <div className="min-h-0 flex-1 px-3 py-4 sm:px-4 sm:py-6 md:px-8 md:py-8">
