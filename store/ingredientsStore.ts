@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { Ingredient, Menu, Sandwich } from "@/lib/types";
-import { genererMenus, genererSandwichs, sandwichSignature } from "@/lib/generator";
+import { genererMenus } from "@/lib/generator";
 import {
   calculerCoutSandwich,
   QUANTITES_PAR_DEFAUT,
@@ -20,14 +20,6 @@ interface IngredientsState {
   ventesBoissons: Record<string, number>;
   ventesSnacks: Record<string, number>;
   removedAutoSignatures: string[];
-  vegetarienOnly: boolean;
-  veganLegumes: boolean;
-  sansFromage: boolean;
-  sansSauce: boolean;
-  setVegetarienOnly: (value: boolean) => void;
-  setVeganLegumes: (value: boolean) => void;
-  setSansFromage: (value: boolean) => void;
-  setSansSauce: (value: boolean) => void;
   setQuantite: (key: keyof QuantitesUtilisation, value: number) => void;
   setSandwichNames: (names: string[]) => void;
   setVente: (nomSandwich: string, quantite: number) => void;
@@ -43,7 +35,6 @@ interface IngredientsState {
   persistNow: () => void;
   persistComptaNow: () => void;
   removeCustomSandwich: (sandwichId: string) => void;
-  removeAutoSandwich: (sandwich: Sandwich) => void;
 }
 
 // Debounce persist pour la compta : sauvegarde automatique en direct (sans bouton)
@@ -109,14 +100,6 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
   ventesBoissons: {},
   ventesSnacks: {},
   removedAutoSignatures: [],
-  vegetarienOnly: false,
-  veganLegumes: false,
-  sansFromage: false,
-  sansSauce: false,
-  setVegetarienOnly: (value) => set({ vegetarienOnly: value }),
-  setVeganLegumes: (value) => set({ veganLegumes: value }),
-  setSansFromage: (value) => set({ sansFromage: value }),
-  setSansSauce: (value) => set({ sansSauce: value }),
   setVente: (nomSandwich, quantite) => {
     set((state) => ({
       ventesParNomSandwich: {
@@ -173,25 +156,13 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
     get().persist();
   },
   generate: () => {
-    const { ingredients, vegetarienOnly, veganLegumes, sansFromage, sansSauce, quantites, customSandwiches, sandwichNames, removedAutoSignatures } = get();
-    if (!ingredients.length) return;
-    const excluded = new Set(removedAutoSignatures);
-    const autoRaw = genererSandwichs(ingredients, {
-      vegetarienOnly,
-      veganLegumes,
-      sansFromage,
-      sansSauce,
-      quantites,
-      sandwichNames,
-      count: 25,
-    });
-    const autoSandwiches = autoRaw.filter((s) => !excluded.has(sandwichSignature(s)));
+    const { ingredients, quantites, customSandwiches } = get();
     const customRecalcules = customSandwiches.map((s) => ({
       ...s,
       cout: calculerCoutSandwich(s, quantites),
     }));
-    const sandwiches = [...autoSandwiches, ...customRecalcules];
-    const menus = genererMenus(sandwiches, ingredients, quantites);
+    const sandwiches = customRecalcules;
+    const menus = ingredients.length ? genererMenus(sandwiches, ingredients, quantites) : [];
     set({ sandwiches, menus });
     get().persist();
   },
@@ -233,22 +204,6 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         state.quantites,
       );
       return { customSandwiches, sandwiches, menus };
-    });
-    get().persist();
-  },
-  removeAutoSandwich: (sandwich) => {
-    const sig = sandwichSignature(sandwich);
-    set((state) => {
-      const removedAutoSignatures = state.removedAutoSignatures.includes(sig)
-        ? state.removedAutoSignatures
-        : [...state.removedAutoSignatures, sig];
-      const sandwiches = state.sandwiches.filter((s) => s.id !== sandwich.id);
-      const menus = genererMenus(
-        sandwiches,
-        state.ingredients,
-        state.quantites,
-      );
-      return { removedAutoSignatures, sandwiches, menus };
     });
     get().persist();
   },

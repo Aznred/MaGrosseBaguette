@@ -30,24 +30,9 @@ export default function GenerateurPage() {
     customSandwiches,
     quantites,
     setQuantite,
-    generate,
     addCustomSandwich,
     removeCustomSandwich,
-    removeAutoSandwich,
-    vegetarienOnly,
-    setVegetarienOnly,
-    veganLegumes,
-    setVeganLegumes,
-    sansFromage,
-    setSansFromage,
-    sansSauce,
-    setSansSauce,
   } = useIngredientsStore();
-
-  const customIds = useMemo(
-    () => new Set(customSandwiches.map((s) => s.id)),
-    [customSandwiches],
-  );
 
   const pains = ingredients.filter((i) => i.categorie === "pain");
   const proteines = ingredients.filter(
@@ -144,7 +129,7 @@ export default function GenerateurPage() {
           </p>
         </div>
         <div className="text-xs text-slate-500">
-          {ingredients.length} ingrédients · {sandwiches.length} sandwichs générés
+          {ingredients.length} ingrédients · {sandwiches.length} recette{sandwiches.length !== 1 ? "s" : ""}
         </div>
       </header>
 
@@ -174,52 +159,6 @@ export default function GenerateurPage() {
               </div>
             </label>
           ))}
-        </div>
-        <div className="mt-4 flex flex-wrap items-center gap-4">
-          <button
-            type="button"
-            onClick={generate}
-            disabled={!ingredients.length}
-            className="min-h-[44px] touch-manipulation inline-flex items-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Générer de nouveaux sandwichs et menus
-          </button>
-          <label className="flex items-center gap-2 text-xs text-slate-600">
-            <input
-              type="checkbox"
-              checked={vegetarienOnly}
-              onChange={(e) => setVegetarienOnly(e.target.checked)}
-              className="rounded border-slate-300"
-            />
-            Protéines végétariennes uniquement
-          </label>
-          <label className="flex items-center gap-2 text-xs text-slate-600">
-            <input
-              type="checkbox"
-              checked={veganLegumes}
-              onChange={(e) => setVeganLegumes(e.target.checked)}
-              className="rounded border-slate-300"
-            />
-            Vegan (légumes à la place de la viande)
-          </label>
-          <label className="flex items-center gap-2 text-xs text-slate-600">
-            <input
-              type="checkbox"
-              checked={sansFromage}
-              onChange={(e) => setSansFromage(e.target.checked)}
-              className="rounded border-slate-300"
-            />
-            Sans fromage
-          </label>
-          <label className="flex items-center gap-2 text-xs text-slate-600">
-            <input
-              type="checkbox"
-              checked={sansSauce}
-              onChange={(e) => setSansSauce(e.target.checked)}
-              className="rounded border-slate-300"
-            />
-            Sans sauce
-          </label>
         </div>
       </div>
 
@@ -321,7 +260,7 @@ export default function GenerateurPage() {
 
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-slate-900">
-          Sandwichs générés ({sandwichesFiltres.length})
+          Mes recettes ({sandwichesFiltres.length})
         </h2>
         <div className="mb-3 grid gap-2 sm:grid-cols-2 md:grid-cols-3">
           <input
@@ -353,7 +292,7 @@ export default function GenerateurPage() {
         </div>
         {sandwichesFiltres.length === 0 ? (
           <p className="text-xs text-slate-500">
-            Aucun sandwich généré pour l&apos;instant.
+            Aucune recette. Créez-en une avec le formulaire ci-dessus.
           </p>
         ) : (
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -373,15 +312,11 @@ export default function GenerateurPage() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (customIds.has(s.id)) {
-                      removeCustomSandwich(s.id);
-                    } else {
-                      removeAutoSandwich(s);
-                    }
+                    removeCustomSandwich(s.id);
                     if (detailSandwich?.id === s.id) setDetailSandwich(null);
                   }}
                   className="absolute right-2 top-2 rounded-lg bg-rose-100 px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-200"
-                  aria-label="Supprimer ce sandwich"
+                  aria-label="Supprimer cette recette"
                 >
                   Supprimer
                 </button>
