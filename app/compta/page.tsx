@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import {
   ArcElement,
@@ -60,38 +60,6 @@ export default function ComptaPage() {
   } = useIngredientsStore();
 
   const [chartType, setChartType] = useState<ChartType>("menus_par_sandwich");
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-
-  const [saveErrorMsg, setSaveErrorMsg] = useState<string | null>(null);
-
-  const handleSaveCompta = useCallback(async () => {
-    setSaveStatus("saving");
-    setSaveErrorMsg(null);
-    try {
-      const res = await fetch("/api/persist/compta", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ventesParNomSandwich,
-          ventesBoissons,
-          ventesSnacks,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      const ok = res.ok;
-      if (!ok) {
-        const msg = (data as { message?: string }).message ?? (data as { error?: string }).error ?? "Erreur de sauvegarde";
-        setSaveErrorMsg(msg);
-        console.error("Compta save error", data);
-      }
-      setSaveStatus(ok ? "saved" : "error");
-      if (ok) setTimeout(() => setSaveStatus("idle"), 3000);
-    } catch (e) {
-      console.error("Compta save error", e);
-      setSaveErrorMsg("Impossible de contacter le serveur.");
-      setSaveStatus("error");
-    }
-  }, [ventesParNomSandwich, ventesBoissons, ventesSnacks]);
 
   const boissons = useMemo(
     () => ingredients.filter((i) => i.categorie === "boisson"),
@@ -369,22 +337,6 @@ export default function ComptaPage() {
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-          <button
-            type="button"
-            onClick={handleSaveCompta}
-            disabled={saveStatus === "saving"}
-            className="min-h-[44px] w-full rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60 touch-manipulation sm:w-auto"
-          >
-            {saveStatus === "saving" ? "Sauvegarde…" : "Sauvegarder maintenant"}
-          </button>
-          {saveStatus === "saved" && (
-            <span className="text-sm font-medium text-emerald-600">Sauvegardé</span>
-          )}
-          {saveStatus === "error" && (
-            <span className="text-sm font-medium text-rose-600">
-              {saveErrorMsg ?? "Erreur de sauvegarde"}
-            </span>
-          )}
           <button
             type="button"
             onClick={handleExportExcel}

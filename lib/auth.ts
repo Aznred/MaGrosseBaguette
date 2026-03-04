@@ -22,7 +22,7 @@ const ForgeEpitaProvider = {
       email: profile.email ?? undefined,
     };
   },
-} as const;
+};
 
 export const authOptions: NextAuthOptions = {
   providers: [ForgeEpitaProvider],

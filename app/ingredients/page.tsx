@@ -106,7 +106,7 @@ export default function IngredientsPage() {
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               placeholder="Ex: Poulet fermier"
-              className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900"
+              className="min-h-[44px] min-w-0 touch-manipulation rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 sm:min-h-0 sm:text-sm"
               required
             />
           </label>
@@ -118,7 +118,7 @@ export default function IngredientsPage() {
               value={prix}
               onChange={(e) => setPrix(e.target.value)}
               placeholder="Ex: 12,50"
-              className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900"
+              className="min-h-[44px] min-w-0 touch-manipulation rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 sm:min-h-0 sm:text-sm"
               required
             />
           </label>
@@ -131,7 +131,7 @@ export default function IngredientsPage() {
                 value={quantite}
                 onChange={(e) => setQuantite(e.target.value)}
                 placeholder="Ex: 500"
-                className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900"
+                className="min-h-[44px] min-w-0 touch-manipulation rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 sm:min-h-0 sm:text-sm"
                 required
               />
             </label>
@@ -140,7 +140,7 @@ export default function IngredientsPage() {
               <select
                 value={unite}
                 onChange={(e) => setUnite(e.target.value as typeof unite)}
-                className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800"
+                className="min-h-[44px] min-w-0 touch-manipulation rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-800 sm:min-h-0 sm:text-sm"
                 aria-label="Choisir l'unité"
               >
                 {UNIT_OPTIONS.map((opt) => (
@@ -156,7 +156,7 @@ export default function IngredientsPage() {
             <select
               value={categorie}
               onChange={(e) => setCategorie(e.target.value as IngredientCategory)}
-              className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800"
+              className="min-h-[44px] min-w-0 touch-manipulation rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-800 sm:min-h-0 sm:text-sm"
               aria-label="Choisir la catégorie"
             >
               {CATEGORY_OPTIONS.map((opt) => (
@@ -166,18 +166,18 @@ export default function IngredientsPage() {
               ))}
             </select>
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex min-h-[44px] touch-manipulation items-center gap-2 sm:min-h-0">
             <input
               type="checkbox"
               checked={vegetarien}
               onChange={(e) => setVegetarien(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300"
+              className="h-5 w-5 shrink-0 rounded border-slate-300"
             />
-            <span className="text-xs text-slate-600">Végétarien</span>
+            <span className="text-sm text-slate-600 sm:text-xs">Végétarien</span>
           </label>
           <button
             type="submit"
-            className="min-h-[44px] rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800"
+            className="min-h-[44px] touch-manipulation rounded-lg bg-emerald-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800 sm:py-2.5 sm:text-sm"
           >
             Ajouter le produit
           </button>

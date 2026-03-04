@@ -168,9 +168,9 @@ export default function GenerateurPage() {
                   onChange={(e) =>
                     setQuantite(field.key, parseFloat(e.target.value || "0"))
                   }
-                  className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900"
+                  className="min-h-[44px] w-full flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 touch-manipulation sm:min-h-0 sm:py-1 sm:text-sm"
                 />
-                <span className="text-[11px] text-slate-500">{field.unit}</span>
+                <span className="shrink-0 text-[11px] text-slate-500">{field.unit}</span>
               </div>
             </label>
           ))}
@@ -180,7 +180,7 @@ export default function GenerateurPage() {
             type="button"
             onClick={generate}
             disabled={!ingredients.length}
-            className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-[44px] touch-manipulation inline-flex items-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Générer de nouveaux sandwichs et menus
           </button>
@@ -236,14 +236,14 @@ export default function GenerateurPage() {
             placeholder="Ex: Mon club préféré"
             value={customSandwichName}
             onChange={(e) => setCustomSandwichName(e.target.value)}
-            className="w-full max-w-sm rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400"
+            className="min-h-[44px] w-full max-w-sm touch-manipulation rounded-lg border border-slate-200 bg-white px-3 py-2 text-base text-slate-800 placeholder:text-slate-400 sm:text-sm"
           />
         </div>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <select
             value={painId}
             onChange={(e) => setPainId(e.target.value)}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-xs"
+            className="min-h-[44px] w-full touch-manipulation rounded-lg border border-slate-200 bg-white px-3 py-2 text-base text-slate-800 sm:py-1.5 sm:text-xs"
           >
             <option value="">Choisir un pain</option>
             {pains.map((p) => (
@@ -255,9 +255,9 @@ export default function GenerateurPage() {
           <select
             value={proteineId}
             onChange={(e) => setProteineId(e.target.value)}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-xs"
+            className="min-h-[44px] w-full touch-manipulation rounded-lg border border-slate-200 bg-white px-3 py-2 text-base text-slate-800 sm:py-1.5 sm:text-xs"
           >
-            <option value="">Sans viande (choisir des légumes ci‑dessous)</option>
+            <option value="">Sans viande (légumes ci‑dessous)</option>
             {proteines.map((p) => (
               <option key={p.id} value={p.id}>
                 {cleanIngredientName(p.nom)}
@@ -267,7 +267,7 @@ export default function GenerateurPage() {
           <select
             value={fromageId}
             onChange={(e) => setFromageId(e.target.value)}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-xs"
+            className="min-h-[44px] w-full touch-manipulation rounded-lg border border-slate-200 bg-white px-3 py-2 text-base text-slate-800 sm:py-1.5 sm:text-xs"
           >
             <option value="">Sans fromage (optionnel)</option>
             {fromages.map((f) => (
@@ -279,7 +279,7 @@ export default function GenerateurPage() {
           <select
             value={sauceId}
             onChange={(e) => setSauceId(e.target.value)}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-xs"
+            className="min-h-[44px] w-full touch-manipulation rounded-lg border border-slate-200 bg-white px-3 py-2 text-base text-slate-800 sm:py-1.5 sm:text-xs"
           >
             <option value="">Sans sauce (optionnel)</option>
             {sauces.map((s) => (
@@ -297,7 +297,7 @@ export default function GenerateurPage() {
                 key={l.id}
                 type="button"
                 onClick={() => toggleLegume(l.id)}
-                className={`rounded-full px-3 py-1 text-xs transition ${
+                className={`min-h-[44px] touch-manipulation rounded-full px-4 py-2 text-sm transition sm:min-h-0 sm:px-3 sm:py-1 sm:text-xs ${
                   active
                     ? "bg-emerald-100 text-emerald-800"
                     : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -312,7 +312,7 @@ export default function GenerateurPage() {
           <button
             type="button"
             onClick={addRecipe}
-            className="rounded-lg bg-sky-600 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-700"
+            className="min-h-[44px] touch-manipulation rounded-lg bg-sky-600 px-5 py-3 text-sm font-semibold text-white hover:bg-sky-700 sm:py-2 sm:text-xs"
           >
             Ajouter ma recette au planificateur
           </button>
@@ -323,13 +323,13 @@ export default function GenerateurPage() {
         <h2 className="mb-3 text-sm font-semibold text-slate-900">
           Sandwichs générés ({sandwichesFiltres.length})
         </h2>
-        <div className="mb-3 grid gap-2 md:grid-cols-3">
+        <div className="mb-3 grid gap-2 sm:grid-cols-2 md:grid-cols-3">
           <input
             type="text"
             placeholder="Filtrer par ingrédient..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800"
+            className="min-h-[44px] touch-manipulation rounded-lg border border-slate-200 bg-white px-3 py-2 text-base text-slate-800 sm:min-h-0 sm:text-xs"
           />
           <input
             type="number"
@@ -339,14 +339,14 @@ export default function GenerateurPage() {
             onChange={(e) =>
               setMaxCout(e.target.value ? parseFloat(e.target.value) : null)
             }
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800"
+            className="min-h-[44px] touch-manipulation rounded-lg border border-slate-200 bg-white px-3 py-2 text-base text-slate-800 sm:min-h-0 sm:text-xs"
           />
-          <label className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+          <label className="min-h-[44px] touch-manipulation inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 sm:min-h-0 sm:text-xs">
             <input
               type="checkbox"
               checked={avecLegumesOnly}
               onChange={(e) => setAvecLegumesOnly(e.target.checked)}
-              className="rounded border-slate-300"
+              className="h-5 w-5 shrink-0 rounded border-slate-300"
             />
             Avec légumes uniquement
           </label>

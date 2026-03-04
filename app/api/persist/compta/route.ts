@@ -63,20 +63,39 @@ async function readComptaSupabase(): Promise<ComptaPayload> {
   if (!data) {
     return ensureObjects(null);
   }
-  return {
-    ventesParNomSandwich: (data.ventes_menus as Record<string, number>) ?? {},
-    ventesBoissons: (data.ventes_boissons as Record<string, number>) ?? {},
-    ventesSnacks: (data.ventes_snacks as Record<string, number>) ?? {},
+  const toRecord = (v: unknown): Record<string, number> => {
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      const out: Record<string, number> = {};
+      for (const [k, val] of Object.entries(v)) {
+        const n = typeof val === "number" ? val : Number(val);
+        if (Number.isFinite(n)) out[String(k)] = n;
+      }
+      return out;
+    }
+    return {};
   };
+  return {
+    ventesParNomSandwich: toRecord(data.ventes_menus),
+    ventesBoissons: toRecord(data.ventes_boissons),
+    ventesSnacks: toRecord(data.ventes_snacks),
+  };
+}
+
+function toJsonbRecord(o: Record<string, number>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(o)) {
+    if (k != null && Number.isFinite(Number(v))) out[String(k)] = Number(v);
+  }
+  return out;
 }
 
 async function writeComptaSupabase(payload: ComptaPayload): Promise<void> {
   const supabase = getSupabaseServer();
   const row = {
     id: COMPTA_ROW_ID,
-    ventes_menus: payload.ventesParNomSandwich,
-    ventes_boissons: payload.ventesBoissons,
-    ventes_snacks: payload.ventesSnacks,
+    ventes_menus: toJsonbRecord(payload.ventesParNomSandwich ?? {}),
+    ventes_boissons: toJsonbRecord(payload.ventesBoissons ?? {}),
+    ventes_snacks: toJsonbRecord(payload.ventesSnacks ?? {}),
   };
   const { error } = await supabase
     .from("app_compta")
@@ -115,9 +134,15 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as ComptaPayload;
     const payload: ComptaPayload = {
-      ventesParNomSandwich: body.ventesParNomSandwich ?? {},
-      ventesBoissons: body.ventesBoissons ?? {},
-      ventesSnacks: body.ventesSnacks ?? {},
+      ventesParNomSandwich: body.ventesParNomSandwich && typeof body.ventesParNomSandwich === "object" && !Array.isArray(body.ventesParNomSandwich)
+        ? toJsonbRecord(body.ventesParNomSandwich as Record<string, number>)
+        : {},
+      ventesBoissons: body.ventesBoissons && typeof body.ventesBoissons === "object" && !Array.isArray(body.ventesBoissons)
+        ? toJsonbRecord(body.ventesBoissons as Record<string, number>)
+        : {},
+      ventesSnacks: body.ventesSnacks && typeof body.ventesSnacks === "object" && !Array.isArray(body.ventesSnacks)
+        ? toJsonbRecord(body.ventesSnacks as Record<string, number>)
+        : {},
     };
 
     // En production : la compta doit être en Supabase pour que tout le monde la voie
