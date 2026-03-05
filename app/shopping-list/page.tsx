@@ -13,6 +13,20 @@ function formatQty(n: number, unit: "g" | "u"): string {
   return unit === "g" ? `${n} g` : `${n} unité(s)`;
 }
 
+/** Affiche "Acheter X × Nom" si on connaît le produit (poids/unité), sinon "Nom → quantité" */
+function formatToBuyLabel(
+  ingredientName: string,
+  toBuy: number,
+  unit: "g" | "u",
+  ingredient?: { poidsTotal: number }
+): string {
+  if (ingredient && ingredient.poidsTotal > 0) {
+    const packs = Math.ceil(toBuy / ingredient.poidsTotal);
+    if (packs > 0) return `Acheter ${packs} × ${ingredientName}`;
+  }
+  return `${ingredientName} → ${formatQty(toBuy, unit)}`;
+}
+
 function ShoppingTable({
   items,
   setStock,
@@ -34,28 +48,39 @@ function ShoppingTable({
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => (
-            <tr key={item.ingredientId} className="border-b border-slate-100">
-              <td className="px-4 py-2.5 font-medium text-slate-900">{item.ingredientName}</td>
-              <td className="px-4 py-2.5 text-slate-600">{formatQty(item.quantityNeeded, item.unit)}</td>
-              <td className="px-4 py-2.5">
-                <input
-                  type="number"
-                  min={0}
-                  step={item.unit === "g" ? 10 : 1}
-                  value={item.stock}
-                  onChange={(e) => setStock(item.ingredientId, parseFloat(e.target.value) || 0)}
-                  className="w-20 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                />
-              </td>
-              <td className="px-4 py-2.5 font-medium text-slate-800">
-                {item.toBuy > 0 ? formatQty(item.toBuy, item.unit) : "—"}
-              </td>
-              <td className="px-4 py-2.5 text-emerald-700">
-                {item.priceEstimated > 0 ? `${item.priceEstimated.toFixed(2)} €` : "—"}
-              </td>
-            </tr>
-          ))}
+          {items.map((item) => {
+            const toBuyLabel =
+              item.toBuy > 0
+                ? formatToBuyLabel(
+                    item.ingredientName,
+                    item.toBuy,
+                    item.unit,
+                    item.ingredient
+                  )
+                : "—";
+            return (
+              <tr key={item.ingredientId} className="border-b border-slate-100">
+                <td className="px-4 py-2.5 font-medium text-slate-900">{item.ingredientName}</td>
+                <td className="px-4 py-2.5 text-slate-600">{formatQty(item.quantityNeeded, item.unit)}</td>
+                <td className="px-4 py-2.5">
+                  <input
+                    type="number"
+                    min={0}
+                    step={item.unit === "g" ? 10 : 1}
+                    value={item.stock}
+                    onChange={(e) => setStock(item.ingredientId, parseFloat(e.target.value) || 0)}
+                    className="w-20 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="px-4 py-2.5 font-medium text-slate-800">
+                  {item.toBuy > 0 ? toBuyLabel : "—"}
+                </td>
+                <td className="px-4 py-2.5 text-emerald-700">
+                  {item.priceEstimated > 0 ? `${item.priceEstimated.toFixed(2)} €` : "—"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -336,7 +361,7 @@ export default function ShoppingListPage() {
                 <ul className="mt-1 list-inside list-disc text-sm text-slate-800">
                   {toBuyList.map((i) => (
                     <li key={i.ingredientId}>
-                      {i.ingredientName} → {formatQty(i.toBuy, i.unit)}
+                      {formatToBuyLabel(i.ingredientName, i.toBuy, i.unit, i.ingredient)}
                     </li>
                   ))}
                 </ul>

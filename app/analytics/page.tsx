@@ -145,9 +145,10 @@ export default function AnalyticsPage() {
     return getShoppingListFromProduction(
       simulationResult.sandwiches.filter((s) => s.quantity > 0),
       sandwiches,
-      quantites
+      quantites,
+      ingredients
     );
-  }, [simulationResult, totalOrders, sandwiches, quantites]);
+  }, [simulationResult, totalOrders, sandwiches, quantites, ingredients]);
 
   const handleImportHelloAsso = async () => {
     setHelloAssoLoading(true);
@@ -475,16 +476,22 @@ export default function AnalyticsPage() {
             Selon vos ventes, voici les stocks à acheter pour la semaine prochaine (quantités calculées à partir des grammages par sandwich).
           </p>
           <ul className="grid list-none gap-1.5 sm:grid-cols-2">
-            {shoppingListFromProduction.map((l, i) => (
+            {shoppingListFromProduction.map((l) => (
               <li
                 key={`${l.ingredientName}-${l.unit}`}
                 className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-white px-3 py-2 text-sm text-slate-800"
               >
                 <span className="text-base" role="img" aria-hidden>{l.unit === "g" ? "📦" : "🥖"}</span>
                 <span className="min-w-0 flex-1 truncate font-medium">{l.ingredientName}</span>
-                <span className="shrink-0 font-mono text-emerald-700">
-                  {l.quantity} {l.unit === "g" ? "g" : "u"}
-                </span>
+                {l.packsToBuy != null && l.packsToBuy > 0 ? (
+                  <span className="shrink-0 font-semibold text-emerald-700">
+                    Acheter {l.packsToBuy} ×
+                  </span>
+                ) : (
+                  <span className="shrink-0 font-mono text-emerald-700">
+                    {l.quantity} {l.unit === "g" ? "g" : "u"}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

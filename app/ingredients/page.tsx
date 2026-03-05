@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MetroImport } from "@/components/MetroImport";
+import { MetroSearchAdd } from "@/components/MetroSearchAdd";
 import { useIngredientsStore } from "@/store/ingredientsStore";
 import type { Ingredient, IngredientCategory } from "@/lib/types";
 
@@ -183,6 +184,8 @@ export default function IngredientsPage() {
           </button>
         </form>
       </div>
+
+      <MetroSearchAdd />
 
       <MetroImport />
 
