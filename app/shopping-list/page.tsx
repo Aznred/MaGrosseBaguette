@@ -36,15 +36,15 @@ function ShoppingTable({
 }) {
   if (items.length === 0) return null;
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-2xl border border-stone-200/80 bg-white shadow-lg">
       <table className="w-full min-w-[520px] text-left text-sm">
         <thead>
-          <tr className="border-b border-slate-200 bg-slate-50">
-            <th className="px-4 py-3 font-semibold text-slate-700">Ingrédient</th>
-            <th className="px-4 py-3 font-semibold text-slate-700">Quantité nécessaire</th>
-            <th className="px-4 py-3 font-semibold text-slate-700">Déjà en stock</th>
-            <th className="px-4 py-3 font-semibold text-slate-700">À acheter</th>
-            <th className="px-4 py-3 font-semibold text-slate-700">Prix estimé</th>
+          <tr className="border-b border-stone-200 bg-stone-50">
+            <th className="px-4 py-3 font-semibold text-stone-700">Ingrédient</th>
+            <th className="px-4 py-3 font-semibold text-stone-700">Quantité nécessaire</th>
+            <th className="px-4 py-3 font-semibold text-stone-700">Déjà en stock</th>
+            <th className="px-4 py-3 font-semibold text-stone-700">À acheter</th>
+            <th className="px-4 py-3 font-semibold text-stone-700">Prix estimé</th>
           </tr>
         </thead>
         <tbody>
@@ -59,9 +59,9 @@ function ShoppingTable({
                   )
                 : "—";
             return (
-              <tr key={item.ingredientId} className="border-b border-slate-100">
-                <td className="px-4 py-2.5 font-medium text-slate-900">{item.ingredientName}</td>
-                <td className="px-4 py-2.5 text-slate-600">{formatQty(item.quantityNeeded, item.unit)}</td>
+              <tr key={item.ingredientId} className="border-b border-stone-100">
+                <td className="px-4 py-2.5 font-medium text-stone-900">{item.ingredientName}</td>
+                <td className="px-4 py-2.5 text-stone-600">{formatQty(item.quantityNeeded, item.unit)}</td>
                 <td className="px-4 py-2.5">
                   <input
                     type="number"
@@ -69,10 +69,10 @@ function ShoppingTable({
                     step={item.unit === "g" ? 10 : 1}
                     value={item.stock}
                     onChange={(e) => setStock(item.ingredientId, parseFloat(e.target.value) || 0)}
-                    className="w-20 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-20 rounded-xl border border-stone-200 bg-white px-2 py-1.5 text-stone-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
                   />
                 </td>
-                <td className="px-4 py-2.5 font-medium text-slate-800">
+                <td className="px-4 py-2.5 font-medium text-stone-800">
                   {item.toBuy > 0 ? toBuyLabel : "—"}
                 </td>
                 <td className="px-4 py-2.5 text-emerald-700">
@@ -193,20 +193,18 @@ export default function ShoppingListPage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
-            Liste de courses
-          </h1>
-          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Sélectionnez les sandwichs de la semaine pour générer la liste d&apos;ingrédients et le coût estimé.
-          </p>
-        </div>
+      <header>
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
+          Liste de courses
+        </h1>
+        <p className="mt-2 text-stone-600">
+          Sélectionnez les sandwichs de la semaine pour générer la liste d&apos;ingrédients et le coût estimé.
+        </p>
       </header>
 
       {/* HelloAsso : récupérer les ventes en direct → remplir la liste de courses */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+      <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+        <h2 className="mb-3 font-heading text-lg font-bold text-stone-900">
           Récupérer les ventes HelloAsso en direct
         </h2>
         <p className="mb-3 text-xs text-slate-500">
@@ -257,8 +255,8 @@ export default function ShoppingListPage() {
       </section>
 
       {/* Section 1 : Sélection des sandwichs */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+      <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+        <h2 className="mb-4 font-heading text-lg font-bold text-stone-900">
           Sélection des sandwichs de la semaine
         </h2>
         <div className="space-y-3">
@@ -334,8 +332,8 @@ export default function ShoppingListPage() {
 
       {/* Section 2 : Tableau des ingrédients */}
       {items.length > 0 && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+          <h2 className="mb-4 font-heading text-lg font-bold text-stone-900">
             Ingrédients calculés
           </h2>
           <ShoppingTable items={items} setStock={setStock} />
@@ -344,8 +342,8 @@ export default function ShoppingListPage() {
 
       {/* Section 3 : Résumé + liste à acheter + export */}
       {items.length > 0 && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+          <h2 className="mb-4 font-heading text-lg font-bold text-stone-900">
             Résumé
           </h2>
           <div className="space-y-4">
@@ -393,7 +391,7 @@ export default function ShoppingListPage() {
       )}
 
       {sandwiches.length === 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm">
+        <div className="rounded-3xl border border-stone-200/80 bg-white p-6 text-sm text-stone-500 shadow-xl shadow-stone-900/5">
           Aucun sandwich disponible. Créez des recettes dans le Générateur puis revenez ici.
         </div>
       )}

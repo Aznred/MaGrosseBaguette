@@ -327,71 +327,69 @@ export default function ComptaPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <header className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
             Comptabilité
           </h1>
-          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Menus à 5€, boissons et snacks à l&apos;unité. Les ventes sont enregistrées automatiquement en direct (tout le monde voit les mêmes données).
+          <p className="mt-2 text-stone-600">
+            Menus à 5€, boissons et snacks à l&apos;unité. Les ventes sont enregistrées en direct.
           </p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-          <button
-            type="button"
-            onClick={handleExportExcel}
-            className="min-h-[44px] w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 touch-manipulation sm:w-auto"
-          >
-            Exporter en Excel
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleExportExcel}
+          className="shrink-0 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700"
+        >
+          Exporter en Excel
+        </button>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase text-slate-500">
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xl shadow-stone-900/5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
             CA total
           </p>
           <p className="mt-1 text-2xl font-bold text-emerald-700">
             {totalCA.toFixed(2)} €
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase text-slate-500">
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xl shadow-stone-900/5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
             Coûts totaux
           </p>
-          <p className="mt-1 text-2xl font-bold text-slate-800">
+          <p className="mt-1 font-heading text-2xl font-bold text-stone-800">
             {totalCout.toFixed(2)} €
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase text-slate-500">
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xl shadow-stone-900/5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
             Bénéfice
           </p>
           <p className="mt-1 text-2xl font-bold text-emerald-600">
             {benefice.toFixed(2)} €
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase text-slate-500">
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xl shadow-stone-900/5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
             Menus vendus
           </p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">
+          <p className="mt-1 font-heading text-2xl font-bold text-stone-900">
             {totalMenusVendus}
           </p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold text-slate-800">
+          <h2 className="font-heading text-lg font-bold text-stone-900">
             Graphique d&apos;analyse
           </h2>
           <select
             value={chartType}
             onChange={(e) => setChartType(e.target.value as ChartType)}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+            className="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-800 transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
           >
             {CHART_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -403,11 +401,11 @@ export default function ComptaPage() {
         <div className="h-80">{renderChart()}</div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-800">
+      <div className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+        <h2 className="mb-3 font-heading text-lg font-bold text-stone-900">
           Saisie des ventes — Menus
         </h2>
-        <p className="mb-4 text-xs text-slate-500">
+        <p className="mb-4 text-sm text-stone-500">
           Nombre de menus (sandwich + boisson + dessert) vendus à 5€.
         </p>
         {nomsUniques.length === 0 ? (

@@ -19,62 +19,68 @@ export function LayoutShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen min-h-[100dvh] bg-gradient-to-br from-slate-50 via-white to-slate-50 text-slate-900">
+    <div className="flex min-h-screen min-h-[100dvh] bg-[linear-gradient(165deg,_#fafaf9_0%,_#f5f5f4_50%,_#fafaf9_100%)] text-stone-900">
       <PersistLoader />
       {/* Sidebar desktop */}
-      <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-slate-200/80 bg-white px-5 py-6 shadow-sm md:flex">
-        <div className="mb-8 flex items-center gap-2 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-sm font-bold text-white shadow-md">
-            M
-          </div>
-          <div>
-            <div className="text-base font-bold tracking-tight text-slate-900">
-              Ma Verge
+      <aside className="hidden w-72 flex-shrink-0 flex-col md:flex">
+        <div className="flex h-full flex-col rounded-r-3xl border border-l-0 border-stone-200/80 bg-white/95 px-6 py-8 shadow-xl shadow-stone-900/5 backdrop-blur-sm">
+          <div className="mb-10 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 text-lg font-bold text-white shadow-lg shadow-emerald-500/30">
+              M
             </div>
-            <div className="text-xs text-slate-500">
-              Coûts & menus
+            <div>
+              <div className="font-heading text-xl font-bold tracking-tight text-stone-900">
+                Ma Verge
+              </div>
+              <div className="text-xs font-medium text-stone-500">
+                Coûts & menus
+              </div>
             </div>
           </div>
-        </div>
-        <nav className="space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const active =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                  active
-                    ? "bg-slate-900 text-slate-50 shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="mt-auto rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 text-xs text-slate-500">
-          Coût menu{" "}
-          <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-600">
-            ≤ 3€
-          </span>{" "}
-          recommandé.
+          <nav className="space-y-1">
+            {NAV_ITEMS.map((item) => {
+              const active =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                    active
+                      ? "bg-stone-900 text-white shadow-md"
+                      : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="mt-auto rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-teal-50/50 p-4">
+            <p className="text-xs font-medium text-stone-600">
+              Objectif coût menu
+            </p>
+            <p className="mt-1 font-heading text-lg font-bold text-emerald-700">
+              ≤ 3€
+            </p>
+            <p className="mt-0.5 text-xs text-stone-500">
+              recommandé pour la marge
+            </p>
+          </div>
         </div>
       </aside>
 
-      <main className="flex min-w-0 flex-1 flex-col pb-20 md:pb-0">
-        <div className="min-h-0 flex-1 px-3 py-4 sm:px-4 sm:py-6 md:px-8 md:py-8">
+      <main className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
+        <div className="min-h-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 md:px-10 md:py-10">
           <div className="mx-auto w-full min-w-0 max-w-6xl">{children}</div>
         </div>
       </main>
 
-      {/* Navigation mobile (bas d'écran) */}
+      {/* Navigation mobile */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-slate-200/80 bg-white/95 py-2 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] backdrop-blur-sm safe-area-pb md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around gap-1 border-t border-stone-200/90 bg-white/95 px-2 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md safe-area-pb md:hidden"
         aria-label="Navigation principale"
       >
         {NAV_ITEMS.map((item) => {
@@ -86,10 +92,10 @@ export function LayoutShell({ children }: { children: ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex min-h-[44px] flex-1 items-center justify-center rounded-lg px-2 py-2 text-xs font-medium transition ${
+              className={`flex min-h-[48px] flex-1 items-center justify-center rounded-xl px-2 py-2 text-xs font-semibold transition-all ${
                 active
-                  ? "bg-slate-900 text-slate-50"
-                  : "text-slate-600 active:bg-slate-100"
+                  ? "bg-stone-900 text-white shadow-inner"
+                  : "text-stone-600 active:bg-stone-100"
               }`}
             >
               {item.label}

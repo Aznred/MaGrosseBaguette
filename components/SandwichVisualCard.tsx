@@ -108,11 +108,11 @@ export function SandwichVisualCard({ sandwich, compact, hideName }: Props) {
 
   return (
     <div
-      className={`group rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-amber-200 ${compact ? "p-2" : "p-3"}`}
+      className={`group rounded-2xl border-2 border-stone-200/80 bg-white shadow-lg shadow-stone-900/5 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:border-amber-200 ${compact ? "p-2" : "p-3"}`}
     >
       {/* Sub en coupe, style réaliste : contours nets, pain texturé, salade ondulée */}
       <div
-        className={`relative mx-auto overflow-hidden rounded-xl bg-slate-50 ${compact ? "max-w-[140px]" : "max-w-[200px]"}`}
+        className={`relative mx-auto overflow-hidden rounded-xl bg-stone-50 ${compact ? "max-w-[140px]" : "max-w-[200px]"}`}
         style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
       >
         <div className="flex flex-col gap-0 rounded-lg p-1.5">

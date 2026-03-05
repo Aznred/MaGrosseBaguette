@@ -13,99 +13,95 @@ export default function Home() {
   const menusTries = [...menus].sort((a, b) => a.coutTotal - b.coutTotal);
   const topMenus = menusTries.slice(0, 5);
   const [detailMenu, setDetailMenu] = useState<Menu | null>(null);
+  const underBudget = menus.filter((m) => m.coutTotal <= 3).length;
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Dashboard des menus
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Visualisez les coûts et trouvez les combinaisons de menus les plus
-            rentables.
-          </p>
-        </div>
-        <div className="rounded-full bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-700">
-          Objectif : coût menu ≤ 3€
+    <div className="space-y-8">
+      {/* Hero */}
+      <header className="animate-fade-in">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
+          Dashboard des menus
+        </h1>
+        <p className="mt-2 max-w-xl text-stone-600">
+          Visualisez les coûts et trouvez les combinaisons les plus rentables.
+        </p>
+        <div className="mt-6 flex flex-wrap items-center gap-4">
+          <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50 to-teal-50/80 px-5 py-2.5">
+            <span className="text-sm font-semibold text-emerald-800">
+              Objectif : coût menu ≤ 3€
+            </span>
+          </div>
+          <div className="flex gap-6 text-sm text-stone-500">
+            <span><strong className="text-stone-700">{ingredients.length}</strong> ingrédients</span>
+            <span><strong className="text-stone-700">{menus.length}</strong> menus</span>
+            <span><strong className="text-emerald-700">{underBudget}</strong> menus ≤ 3€</span>
+          </div>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[2fr,1.1fr]">
-        <div className="min-w-0 space-y-4">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.6fr,1fr]">
+        <div className="min-w-0 space-y-6">
           <MetroImport />
-          <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <button
-              type="button"
-              onClick={generate}
-              className="inline-flex items-center rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={!ingredients.length}
-            >
-              Recalculer les coûts
-            </button>
-            <div className="flex gap-4 text-xs text-slate-500">
-              <span>{ingredients.length} ingrédients importés</span>
-              <span>{menus.length} menus</span>
-            </div>
-          </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="mb-3 text-sm font-semibold text-slate-900">
-              Menus les moins chers
-            </h2>
+          <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <h2 className="font-heading text-xl font-bold text-stone-900">
+                Menus les moins chers
+              </h2>
+              <button
+                type="button"
+                onClick={generate}
+                disabled={!ingredients.length}
+                className="rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+              >
+                Recalculer les coûts
+              </button>
+            </div>
             {topMenus.length === 0 ? (
-              <p className="text-xs text-slate-500">
-                Importez des ingrédients et créez des recettes dans le Générateur
-                pour voir les menus.
-              </p>
+              <div className="mt-6 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50/50 py-16 text-center">
+                <p className="text-stone-500">
+                  Importez des ingrédients et créez des recettes dans le Générateur pour voir les menus.
+                </p>
+              </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
                 {topMenus.map((menu, index) => {
                   const isCheap = menu.coutTotal <= 3;
+                  const name = menu.sandwich.nom.includes(":")
+                    ? menu.sandwich.nom.split(":")[0].trim()
+                    : menu.sandwich.nom.length > 25
+                      ? menu.sandwich.nom.slice(0, 22) + "…"
+                      : menu.sandwich.nom;
                   return (
-                    <div
+                    <button
                       key={menu.id}
+                      type="button"
                       onClick={() => setDetailMenu(menu)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ")
-                          setDetailMenu(menu);
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`Voir le détail : ${menu.sandwich.nom}`}
-                      className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 rounded-2xl"
+                      className="group animate-fade-in rounded-2xl border border-stone-200/80 bg-stone-50/30 p-4 text-left transition hover:border-amber-200 hover:bg-white hover:shadow-lg hover:shadow-stone-900/5 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2"
+                      style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <p className="mb-2 min-h-[1.5rem] text-center text-xs font-semibold text-slate-800">
-                        {menu.sandwich.nom.includes(":")
-                          ? menu.sandwich.nom.split(":")[0].trim()
-                          : menu.sandwich.nom.length > 25
-                            ? menu.sandwich.nom.slice(0, 22) + "…"
-                            : menu.sandwich.nom}
+                      <p className="mb-3 min-h-[2rem] font-heading text-sm font-semibold text-stone-800 line-clamp-2">
+                        {name}
                       </p>
-                      <SandwichVisualCard
-                        sandwich={menu.sandwich}
-                        compact
-                      />
-                      <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
+                      <SandwichVisualCard sandwich={menu.sandwich} compact />
+                      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                         <span
-                          className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                          className={`rounded-full px-3 py-1 text-xs font-bold ${
                             isCheap
                               ? "bg-emerald-100 text-emerald-800"
-                              : "bg-rose-100 text-rose-700"
+                              : "bg-amber-100 text-amber-800"
                           }`}
                         >
                           {menu.coutTotal.toFixed(2)} €
                         </span>
-                        <span className="text-[10px] text-slate-500">
-                          menu
-                        </span>
+                        <span className="text-xs text-stone-400">menu</span>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
             )}
-          </div>
+          </section>
         </div>
 
         <div className="min-w-0">
@@ -123,5 +119,3 @@ export default function Home() {
     </div>
   );
 }
-
-

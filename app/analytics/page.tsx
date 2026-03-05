@@ -237,39 +237,39 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
             Analyste
           </h1>
-          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Analyse des menus sélectionnés, popularité et recommandations de production.
+          <p className="mt-2 text-stone-600">
+            Analyse des menus, popularité et recommandations de production.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           <button
             type="button"
             onClick={handleExportCsv}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-stone-200/80 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50"
           >
-            Exporter rapport CSV
+            Exporter CSV
           </button>
           <button
             type="button"
             onClick={handleExportPdf}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-stone-200/80 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50"
           >
-            Exporter rapport PDF
+            Exporter PDF
           </button>
         </div>
       </header>
 
       {/* Historique : enregistrer une vente / importer compta */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+      <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+        <h2 className="mb-3 font-heading text-lg font-bold text-stone-900">
           Historique des menus
         </h2>
-        <p className="mb-3 text-xs text-slate-500">
+        <p className="mb-4 text-sm text-stone-500">
           {totalOrders} commande(s) enregistrée(s). Enregistrez des ventes menu (sandwich + boisson + dessert) pour alimenter les statistiques.
         </p>
         {addError && (

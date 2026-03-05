@@ -257,18 +257,17 @@ export function MetroImport() {
   };
 
   return (
-    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-5 rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-900">
+          <h2 className="font-heading text-lg font-bold text-stone-900">
             Importer une liste METRO
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
+          </h2>
+          <p className="mt-1 text-sm text-stone-500">
             Collez l&apos;URL de votre liste METRO ou importez un fichier HTML/CSV.
-            Le parsing est encore expérimental.
           </p>
         </div>
-        <label className="inline-flex cursor-pointer items-center rounded-full bg-slate-900 px-4 py-2 text-xs font-medium text-white shadow-sm transition hover:bg-slate-700">
+        <label className="inline-flex cursor-pointer items-center rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-stone-800">
           Importer un fichier (HTML ou CSV)
           <input
             type="file"
@@ -301,24 +300,24 @@ export function MetroImport() {
           const file = e.dataTransfer.files?.[0];
           if (file) void handleFile(file);
         }}
-        className={`rounded-xl border-2 border-dashed p-4 text-center text-xs transition ${
+        className={`rounded-2xl border-2 border-dashed p-6 text-center text-sm transition ${
           isDragging
-            ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-            : "border-slate-300 bg-slate-50 text-slate-500"
+            ? "border-emerald-400 bg-emerald-50/80 text-emerald-700"
+            : "border-stone-200 bg-stone-50/50 text-stone-500"
         }`}
       >
         Glisse-dépose ton fichier ici (HTML/CSV)
       </div>
 
-      <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <label className="text-xs font-medium text-slate-700">
+      <div className="space-y-2 rounded-2xl border border-stone-200/80 bg-stone-50/50 p-4">
+        <label className="text-sm font-medium text-stone-700">
           URL METRO (page de liste ou export)
         </label>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <input
             type="url"
             placeholder="https://..."
-            className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none ring-0 focus:border-slate-400"
+            className="min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
@@ -326,12 +325,12 @@ export function MetroImport() {
             type="button"
             onClick={handleImportUrl}
             disabled={!url || loadingUrl}
-            className="inline-flex items-center rounded-lg bg-emerald-500 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
+            className="shrink-0 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loadingUrl ? "Import..." : "Importer URL"}
+            {loadingUrl ? "Import…" : "Importer URL"}
           </button>
         </div>
-        {error && <p className="text-xs text-rose-600">{error}</p>}
+        {error && <p className="text-sm text-rose-600">{error}</p>}
       </div>
     </div>
   );
