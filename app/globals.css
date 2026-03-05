@@ -51,9 +51,30 @@ body {
   width: 100%;
 }
 
-/* Safe area pour encoche / barre d'accueil mobile */
+/* Safe areas mobile (encoche, barre d'accueil, bords) */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top, 0);
+}
+.safe-area-x {
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+/* Cibles tactiles minimales sur mobile (inputs/selects pour éviter zoom iOS + clics faciles) */
+@media (max-width: 767px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: 16px; /* évite le zoom automatique sur iOS */
+  }
 }
 
 /* Design tokens utilitaires */

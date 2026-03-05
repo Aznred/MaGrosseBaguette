@@ -35,17 +35,17 @@ export function SandwichDetailModal({ sandwich, menu, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-stone-900/60 p-0 backdrop-blur-sm safe-area-pt sm:items-center sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Détail du sandwich"
     >
       <div
-        className="max-h-[90vh] w-full max-w-lg overflow-auto rounded-3xl border border-stone-200/80 bg-white shadow-2xl shadow-stone-900/20"
+        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-b-0 border-stone-200/80 bg-white shadow-2xl shadow-stone-900/20 safe-area-pb sm:max-h-[90vh] sm:rounded-3xl sm:border-b"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200/80 bg-white/95 px-6 py-4 backdrop-blur-sm">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200/80 bg-white/95 px-4 py-3 backdrop-blur-sm safe-area-x sm:px-6 sm:py-4">
           <h2 className="font-heading text-xl font-bold text-stone-900">
             Détail du sandwich
           </h2>
@@ -59,7 +59,7 @@ export function SandwichDetailModal({ sandwich, menu, onClose }: Props) {
           </button>
         </div>
 
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-4 sm:p-6">
           <p className="font-heading text-lg font-semibold text-stone-800">{sandwich.nom}</p>
 
           <div className="rounded-2xl border border-stone-200/80 bg-stone-50/50 p-4">

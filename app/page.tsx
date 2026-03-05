@@ -9,7 +9,7 @@ import { useIngredientsStore } from "@/store/ingredientsStore";
 import type { Menu } from "@/lib/types";
 
 export default function Home() {
-  const { ingredients, menus, generate } = useIngredientsStore();
+  const { ingredients, menus, quantites, generate } = useIngredientsStore();
   const menusTries = [...menus].sort((a, b) => a.coutTotal - b.coutTotal);
   const topMenus = menusTries.slice(0, 5);
   const [detailMenu, setDetailMenu] = useState<Menu | null>(null);
@@ -25,13 +25,13 @@ export default function Home() {
         <p className="mt-2 max-w-xl text-stone-600">
           Visualisez les coûts et trouvez les combinaisons les plus rentables.
         </p>
-        <div className="mt-6 flex flex-wrap items-center gap-4">
-          <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50 to-teal-50/80 px-5 py-2.5">
+        <div className="mt-4 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50 to-teal-50/80 px-4 py-2.5 sm:px-5">
             <span className="text-sm font-semibold text-emerald-800">
               Objectif : coût menu ≤ 3€
             </span>
           </div>
-          <div className="flex gap-6 text-sm text-stone-500">
+          <div className="flex flex-wrap gap-4 text-sm text-stone-500 sm:gap-6">
             <span><strong className="text-stone-700">{ingredients.length}</strong> ingrédients</span>
             <span><strong className="text-stone-700">{menus.length}</strong> menus</span>
             <span><strong className="text-emerald-700">{underBudget}</strong> menus ≤ 3€</span>
@@ -43,8 +43,8 @@ export default function Home() {
         <div className="min-w-0 space-y-6">
           <MetroImport />
 
-          <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+          <section className="rounded-3xl border border-stone-200/80 bg-white p-4 shadow-xl shadow-stone-900/5 sm:p-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
               <h2 className="font-heading text-xl font-bold text-stone-900">
                 Menus les moins chers
               </h2>
@@ -52,7 +52,7 @@ export default function Home() {
                 type="button"
                 onClick={generate}
                 disabled={!ingredients.length}
-                className="rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                className="min-h-[44px] w-full touch-manipulation rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none sm:w-auto sm:py-2.5"
               >
                 Recalculer les coûts
               </button>
@@ -105,7 +105,7 @@ export default function Home() {
         </div>
 
         <div className="min-w-0">
-          <CostChart ingredients={ingredients} />
+          <CostChart ingredients={ingredients} quantites={quantites} />
         </div>
       </div>
 

@@ -163,7 +163,7 @@ export default function GenerateurPage() {
           <button
             type="button"
             onClick={generate}
-            className="rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700"
+            className="min-h-[44px] w-full touch-manipulation rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700 sm:w-auto sm:py-2.5"
           >
             Recalculer les coûts
           </button>
@@ -259,7 +259,7 @@ export default function GenerateurPage() {
           <button
             type="button"
             onClick={addRecipe}
-            className="rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/25 transition hover:from-sky-600 hover:to-sky-700"
+            className="min-h-[44px] w-full touch-manipulation rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/25 transition hover:from-sky-600 hover:to-sky-700 sm:w-auto"
           >
             Ajouter ma recette au planificateur
           </button>

@@ -126,11 +126,11 @@ export function MenuTable({ menus }: Props) {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 md:mx-0 md:px-0">
         <table className="min-w-[800px] border-collapse text-left text-sm sm:min-w-[1200px]">
           <thead className="sticky top-0 z-10 bg-stone-100 text-xs font-semibold uppercase tracking-wider text-stone-600">
             <tr>
-              <th className="sticky left-0 z-20 min-w-[140px] border border-stone-300 bg-stone-100 px-2 py-2 sm:min-w-0 sm:px-3">
+              <th className="sticky left-0 z-20 min-w-[120px] border border-stone-300 bg-stone-100 px-2 py-2.5 sm:min-w-0 sm:px-3">
                 Nom du sandwich
               </th>
               <th className="border border-stone-300 px-3 py-2">Ingrédients</th>

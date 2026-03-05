@@ -346,8 +346,8 @@ export default function ComptaPage() {
         </button>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xl shadow-stone-900/5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+        <div className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-xl shadow-stone-900/5 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
             CA total
           </p>

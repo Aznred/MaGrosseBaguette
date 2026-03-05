@@ -22,7 +22,7 @@ export default function PlanificateurPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-xl shadow-stone-900/5">
           <p className="text-sm font-medium text-stone-500">Menus générés</p>
           <p className="mt-1 font-heading text-2xl font-bold text-stone-900">{menus.length}</p>
@@ -46,7 +46,7 @@ export default function PlanificateurPage() {
           </p>
         </div>
       ) : (
-        <div className="rounded-3xl border border-stone-200/80 bg-white shadow-xl shadow-stone-900/5 overflow-hidden">
+        <div className="rounded-3xl border border-stone-200/80 bg-white shadow-xl shadow-stone-900/5 overflow-x-auto">
           <MenuTable menus={menus} />
         </div>
       )}

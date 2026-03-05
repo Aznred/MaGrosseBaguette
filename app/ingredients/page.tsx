@@ -103,7 +103,7 @@ export default function IngredientsPage() {
         </p>
       </header>
 
-      <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+      <section className="rounded-3xl border border-stone-200/80 bg-white p-4 shadow-xl shadow-stone-900/5 sm:p-8">
         <h2 className="mb-5 flex items-center gap-2 font-heading text-lg font-bold text-stone-900">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
               +
@@ -118,7 +118,7 @@ export default function IngredientsPage() {
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
                 placeholder="Ex: Poulet fermier, Baguette, Mozzarella..."
-                className="rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-stone-900 placeholder-stone-400 transition focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+                className="min-h-[44px] touch-manipulation rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-base text-stone-900 placeholder-stone-400 transition focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
                 required
               />
             </label>
@@ -191,7 +191,7 @@ export default function IngredientsPage() {
             </label>
             <button
               type="submit"
-              className="rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-emerald-600/25 transition hover:bg-emerald-700 hover:shadow-emerald-600/30 active:bg-emerald-800"
+              className="min-h-[44px] w-full touch-manipulation rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-emerald-600/25 transition hover:bg-emerald-700 hover:shadow-emerald-600/30 active:bg-emerald-800 sm:w-auto"
             >
               Ajouter le produit
             </button>

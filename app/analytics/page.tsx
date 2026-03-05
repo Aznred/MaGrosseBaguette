@@ -265,7 +265,7 @@ export default function AnalyticsPage() {
       </header>
 
       {/* Historique : enregistrer une vente / importer compta */}
-      <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+      <section className="rounded-3xl border border-stone-200/80 bg-white p-4 shadow-xl shadow-stone-900/5 sm:p-8">
         <h2 className="mb-3 font-heading text-lg font-bold text-stone-900">
           Historique des menus
         </h2>
@@ -278,13 +278,13 @@ export default function AnalyticsPage() {
           </p>
         )}
         <div className="flex flex-wrap gap-3">
-          <form onSubmit={handleAddOrder} className="flex flex-wrap items-end gap-2">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500">Sandwich *</label>
+          <form onSubmit={handleAddOrder} className="flex w-full flex-wrap items-end gap-3 sm:w-auto">
+            <div className="flex flex-1 flex-col gap-1 sm:flex-initial">
+              <label className="mb-1 block text-xs text-stone-500">Sandwich *</label>
               <select
                 value={addSandwich}
                 onChange={(e) => { setAddSandwich(e.target.value); setAddError(null); }}
-                className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                className="min-h-[44px] w-full touch-manipulation rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-base sm:w-auto sm:text-sm"
                 aria-required
               >
                 <option value="">Choisir…</option>
@@ -293,12 +293,12 @@ export default function AnalyticsPage() {
                 ))}
               </select>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500">Boisson *</label>
+            <div className="flex flex-1 flex-col gap-1 sm:flex-initial">
+              <label className="mb-1 block text-xs text-stone-500">Boisson *</label>
               <select
                 value={addBoisson}
                 onChange={(e) => { setAddBoisson(e.target.value); setAddError(null); }}
-                className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                className="min-h-[44px] w-full touch-manipulation rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-base sm:w-auto sm:text-sm"
                 aria-required
               >
                 <option value="">Choisir…</option>
@@ -307,12 +307,12 @@ export default function AnalyticsPage() {
                 ))}
               </select>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500">Dessert *</label>
+            <div className="flex flex-1 flex-col gap-1 sm:flex-initial">
+              <label className="mb-1 block text-xs text-stone-500">Dessert *</label>
               <select
                 value={addDessert}
                 onChange={(e) => { setAddDessert(e.target.value); setAddError(null); }}
-                className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                className="min-h-[44px] w-full touch-manipulation rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-base sm:w-auto sm:text-sm"
                 aria-required
               >
                 <option value="">Choisir…</option>
@@ -322,19 +322,19 @@ export default function AnalyticsPage() {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500">Quantité *</label>
+              <label className="mb-1 block text-xs text-stone-500">Quantité *</label>
               <input
                 type="number"
                 min={1}
                 value={addQty}
                 onChange={(e) => { setAddQty(e.target.value); setAddError(null); }}
-                className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                className="min-h-[44px] w-20 touch-manipulation rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-base"
                 aria-required
               />
             </div>
             <button
               type="submit"
-              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
+              className="min-h-[44px] touch-manipulation rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700"
             >
               Enregistrer
             </button>
@@ -342,7 +342,7 @@ export default function AnalyticsPage() {
           <button
             type="button"
             onClick={handleImportFromCompta}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+            className="min-h-[44px] touch-manipulation rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50"
           >
             Importer depuis la compta
           </button>
@@ -351,7 +351,7 @@ export default function AnalyticsPage() {
               type="button"
               onClick={handleImportHelloAsso}
               disabled={helloAssoLoading}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              className="min-h-[44px] touch-manipulation rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 disabled:opacity-50"
             >
               {helloAssoLoading ? "Import…" : "Importer depuis HelloAsso"}
             </button>

@@ -257,7 +257,7 @@ export function MetroImport() {
   };
 
   return (
-    <div className="space-y-5 rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+    <div className="space-y-5 rounded-3xl border border-stone-200/80 bg-white p-4 shadow-xl shadow-stone-900/5 sm:p-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="font-heading text-lg font-bold text-stone-900">
@@ -267,7 +267,7 @@ export function MetroImport() {
             Collez l&apos;URL de votre liste METRO ou importez un fichier HTML/CSV.
           </p>
         </div>
-        <label className="inline-flex cursor-pointer items-center rounded-xl bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-stone-800">
+        <label className="inline-flex min-h-[44px] cursor-pointer touch-manipulation items-center justify-center rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-stone-800 sm:py-2.5">
           Importer un fichier (HTML ou CSV)
           <input
             type="file"
@@ -317,7 +317,7 @@ export function MetroImport() {
           <input
             type="url"
             placeholder="https://..."
-            className="min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
+            className="min-h-[44px] min-w-0 flex-1 touch-manipulation rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-base text-stone-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 sm:text-sm"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
@@ -325,7 +325,7 @@ export function MetroImport() {
             type="button"
             onClick={handleImportUrl}
             disabled={!url || loadingUrl}
-            className="shrink-0 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-[44px] shrink-0 touch-manipulation rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-600 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:py-2.5"
           >
             {loadingUrl ? "Import…" : "Importer URL"}
           </button>

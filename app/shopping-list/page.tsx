@@ -36,7 +36,7 @@ function ShoppingTable({
 }) {
   if (items.length === 0) return null;
   return (
-    <div className="overflow-x-auto rounded-2xl border border-stone-200/80 bg-white shadow-lg">
+    <div className="-mx-4 overflow-x-auto overscroll-x-contain rounded-2xl border border-stone-200/80 bg-white shadow-lg md:mx-0">
       <table className="w-full min-w-[520px] text-left text-sm">
         <thead>
           <tr className="border-b border-stone-200 bg-stone-50">
@@ -69,7 +69,7 @@ function ShoppingTable({
                     step={item.unit === "g" ? 10 : 1}
                     value={item.stock}
                     onChange={(e) => setStock(item.ingredientId, parseFloat(e.target.value) || 0)}
-                    className="w-20 rounded-xl border border-stone-200 bg-white px-2 py-1.5 text-stone-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
+                    className="min-h-[44px] w-20 touch-manipulation rounded-xl border border-stone-200 bg-white px-2 py-2 text-base text-stone-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
                   />
                 </td>
                 <td className="px-4 py-2.5 font-medium text-stone-800">
@@ -255,7 +255,7 @@ export default function ShoppingListPage() {
       </section>
 
       {/* Section 1 : Sélection des sandwichs */}
-      <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+      <section className="rounded-3xl border border-stone-200/80 bg-white p-4 shadow-xl shadow-stone-900/5 sm:p-8">
         <h2 className="mb-4 font-heading text-lg font-bold text-stone-900">
           Sélection des sandwichs de la semaine
         </h2>
@@ -266,7 +266,7 @@ export default function ShoppingListPage() {
             </label>
             <select
               id="add-sandwich"
-              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="min-h-[44px] w-full touch-manipulation rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-base text-stone-800 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 sm:w-auto sm:text-sm"
               value=""
               onChange={(e) => {
                 const id = e.target.value;
@@ -305,7 +305,7 @@ export default function ShoppingListPage() {
                     min={1}
                     value={sel.count}
                     onChange={(e) => setSelectionCount(sel.sandwichId, parseInt(e.target.value, 10) || 0)}
-                    className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-center text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="min-h-[44px] w-16 touch-manipulation rounded-xl border border-stone-200 bg-white px-2 py-2 text-center text-base focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
                   />
                   <span className="text-xs text-slate-500">fois / semaine</span>
                   <button
@@ -323,7 +323,7 @@ export default function ShoppingListPage() {
             type="button"
             onClick={generateShoppingList}
             disabled={selections.length === 0 || selections.every((s) => s.count <= 0)}
-            className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none"
+            className="min-h-[44px] w-full touch-manipulation rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white shadow-lg hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none sm:w-auto sm:py-2"
           >
             Générer la liste de courses
           </button>
@@ -332,7 +332,7 @@ export default function ShoppingListPage() {
 
       {/* Section 2 : Tableau des ingrédients */}
       {items.length > 0 && (
-        <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+        <section className="rounded-3xl border border-stone-200/80 bg-white p-4 shadow-xl shadow-stone-900/5 sm:p-8">
           <h2 className="mb-4 font-heading text-lg font-bold text-stone-900">
             Ingrédients calculés
           </h2>
@@ -342,7 +342,7 @@ export default function ShoppingListPage() {
 
       {/* Section 3 : Résumé + liste à acheter + export */}
       {items.length > 0 && (
-        <section className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
+        <section className="rounded-3xl border border-stone-200/80 bg-white p-4 shadow-xl shadow-stone-900/5 sm:p-8">
           <h2 className="mb-4 font-heading text-lg font-bold text-stone-900">
             Résumé
           </h2>
@@ -373,14 +373,14 @@ export default function ShoppingListPage() {
                 <button
                   type="button"
                   onClick={() => exportShoppingListToCsv(items, totalEstimated)}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="min-h-[44px] touch-manipulation rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50"
                 >
                   Exporter CSV
                 </button>
                 <button
                   type="button"
                   onClick={() => printShoppingListForPdf(items, totalEstimated)}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="min-h-[44px] touch-manipulation rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50"
                 >
                   Exporter PDF
                 </button>

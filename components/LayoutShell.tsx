@@ -72,15 +72,15 @@ export function LayoutShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
-        <div className="min-h-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 md:px-10 md:py-10">
+      <main className="flex min-w-0 flex-1 flex-col pb-28 md:pb-0 safe-area-pt">
+        <div className="min-h-0 flex-1 px-4 py-5 safe-area-x sm:px-6 sm:py-8 md:px-10 md:py-10">
           <div className="mx-auto w-full min-w-0 max-w-6xl">{children}</div>
         </div>
       </main>
 
-      {/* Navigation mobile */}
+      {/* Navigation mobile : 7 liens, zone tactile 48px, safe area */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around gap-1 border-t border-stone-200/90 bg-white/95 px-2 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md safe-area-pb md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around gap-0.5 border-t border-stone-200/90 bg-white/95 px-1 py-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md safe-area-pb safe-area-x md:hidden"
         aria-label="Navigation principale"
       >
         {NAV_ITEMS.map((item) => {
@@ -92,13 +92,13 @@ export function LayoutShell({ children }: { children: ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex min-h-[48px] flex-1 items-center justify-center rounded-xl px-2 py-2 text-xs font-semibold transition-all ${
+              className={`flex min-h-[48px] min-w-0 flex-1 items-center justify-center rounded-lg px-1 py-2 text-[11px] font-semibold leading-tight transition-all touch-manipulation active:scale-[0.98] ${
                 active
                   ? "bg-stone-900 text-white shadow-inner"
                   : "text-stone-600 active:bg-stone-100"
               }`}
             >
-              {item.label}
+              <span className="truncate text-center">{item.label}</span>
             </Link>
           );
         })}
