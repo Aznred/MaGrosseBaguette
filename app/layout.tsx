@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sandwich Planner",
-  description: "Planificateur de menus sandwichs pour snack",
+  title: "Ma Verge",
+  description: "Planificateur de menus et coûts pour snack",
 };
 
 export const viewport = {

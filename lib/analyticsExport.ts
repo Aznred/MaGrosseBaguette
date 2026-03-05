@@ -17,7 +17,7 @@ export function exportAnalyticsReportCsv(
   shoppingList: ShoppingListLine[] = []
 ): void {
   const rows: string[][] = [
-    ["Rapport Analyste - Sandwich Planner"],
+    ["Rapport Analyste - Ma Verge"],
     ["Généré le", new Date().toLocaleString("fr-FR")],
     [],
     ["Total commandes enregistrées", String(totalOrders)],
@@ -97,7 +97,7 @@ export function printAnalyticsReportPdf(
         </style>
       </head>
       <body>
-        <h1>Rapport Analyste - Sandwich Planner</h1>
+        <h1>Rapport Analyste - Ma Verge</h1>
         <p class="meta">Généré le ${new Date().toLocaleString("fr-FR")}</p>
         <p><strong>Total commandes :</strong> ${totalOrders} · <strong>Coût moyen menu :</strong> ${costMoyen.toFixed(2)} €</p>
         ${section("Sandwichs populaires", sandwichStats.slice(0, 10).map((s) => `${s.name} → ${s.count}`))}
