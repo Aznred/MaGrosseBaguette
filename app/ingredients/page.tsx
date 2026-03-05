@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MetroDbSearch } from "@/components/MetroDbSearch";
 import { MetroImport } from "@/components/MetroImport";
 import { MetroSearchAdd } from "@/components/MetroSearchAdd";
 import { useIngredientsStore } from "@/store/ingredientsStore";
@@ -185,6 +186,7 @@ export default function IngredientsPage() {
         </form>
       </div>
 
+      <MetroDbSearch />
       <MetroSearchAdd />
 
       <MetroImport />

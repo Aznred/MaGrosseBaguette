@@ -3,7 +3,7 @@ import type { Ingredient, IngredientCategory } from "./types";
 
 type CsvRow = Record<string, string | undefined>;
 
-function normalizeCategory(raw?: string): IngredientCategory | null {
+export function normalizeCategory(raw?: string): IngredientCategory | null {
   if (!raw) return null;
   const c = raw.toLowerCase().trim();
   if (c.includes("pain")) return "pain";
@@ -23,7 +23,7 @@ function normalizeCategory(raw?: string): IngredientCategory | null {
   return null;
 }
 
-function inferCategoryFromName(name: string): IngredientCategory {
+export function inferCategoryFromName(name: string): IngredientCategory {
   const n = name.toLowerCase();
   if (/(baguette|pain|bun|focaccia)/.test(n)) return "pain";
   if (/(jambon|poulet|dinde|boeuf|steak|thon|lardon|viande)/.test(n)) return "viande";
@@ -37,13 +37,13 @@ function inferCategoryFromName(name: string): IngredientCategory {
   return "emballage";
 }
 
-function parseFrenchNumber(value: string): number {
+export function parseFrenchNumber(value: string): number {
   const normalized = value.replace(/\s/g, "").replace(",", ".");
   const n = Number.parseFloat(normalized);
   return Number.isFinite(n) ? n : 0;
 }
 
-function parseWeightToGrams(rawValue?: string): number {
+export function parseWeightToGrams(rawValue?: string): number {
   if (!rawValue) return 0;
   const value = rawValue.toLowerCase().replace(",", ".").trim();
   const kg = value.match(/(\d+(?:\.\d+)?)\s*kg\b/);
@@ -60,7 +60,7 @@ function parseWeightToGrams(rawValue?: string): number {
   return n > 0 ? n : 0;
 }
 
-function extractUnitCountFromName(name: string): number {
+export function extractUnitCountFromName(name: string): number {
   const normalized = name.toLowerCase();
   const patterns = [/x\s*(\d+)/, /lot\s*de\s*(\d+)/, /pack\s*de\s*(\d+)/, /(\d+)\s*pcs\b/, /(\d+)\s*pi[eè]ces?\b/];
   for (const pattern of patterns) {

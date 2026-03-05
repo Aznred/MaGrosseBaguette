@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "scrape-metro": "node scripts/scrape-metro.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
     "chart.js": "^4.5.1",
+    "cheerio": "^1.2.0",
     "next": "16.1.6",
     "papaparse": "^5.5.3",
     "pdfjs-dist": "^5.5.207",
@@ -30,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "puppeteer": "^24.38.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
