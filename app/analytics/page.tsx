@@ -16,6 +16,8 @@ import { useIngredientsStore } from "@/store/ingredientsStore";
 import { exportAnalyticsReportCsv, printAnalyticsReportPdf } from "@/lib/analyticsExport";
 import Link from "next/link";
 import { getShoppingListFromProduction } from "@/lib/shoppingFromProduction";
+import { CategoryIcon } from "@/components/CategoryIcon";
+import type { IngredientCategory } from "@/lib/types";
 
 const HELLOASSO_STORAGE_KEY = "helloasso-config";
 
@@ -481,7 +483,11 @@ export default function AnalyticsPage() {
                 key={`${l.ingredientName}-${l.unit}`}
                 className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-white px-3 py-2 text-sm text-slate-800"
               >
-                <span className="text-base" role="img" aria-hidden>{l.unit === "g" ? "📦" : "🥖"}</span>
+                <CategoryIcon
+                  category={(l.ingredient?.categorie ?? "emballage") as IngredientCategory}
+                  size="base"
+                  className="shrink-0"
+                />
                 <span className="min-w-0 flex-1 truncate font-medium">{l.ingredientName}</span>
                 {l.packsToBuy != null && l.packsToBuy > 0 ? (
                   <span className="shrink-0 font-semibold text-emerald-700">
