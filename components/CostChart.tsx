@@ -1,38 +1,30 @@
 "use client";
 
+import { Doughnut } from "react-chartjs-2";
 import {
-  BarElement,
-  CategoryScale,
+  ArcElement,
   Chart as ChartJS,
   Legend,
-  LinearScale,
   Tooltip,
-  type ChartOptions,
+  type ChartData,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
-import type { Ingredient } from "@/lib/types";
+import type { Ingredient, IngredientCategory } from "@/lib/types";
 import type { QuantitesUtilisation } from "@/lib/pricing";
 import { coutPortion } from "@/lib/pricing";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend);
 
-const BAR_COLORS = [
-  "#059669",
-  "#0d9488",
-  "#0891b2",
-  "#6366f1",
-  "#a855f7",
-  "#ec4899",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#64748b",
-  "#14b8a6",
-  "#8b5cf6",
-  "#f43f5e",
-  "#84cc16",
-  "#0ea5e9",
-];
+const CHART_COLORS: Record<string, string> = {
+  pain: "#eab308",
+  viande: "#dc2626",
+  proteine_vegetarienne: "#22c55e",
+  fromage: "#f97316",
+  sauce: "#a855f7",
+  legumes: "#16a34a",
+  boisson: "#0ea5e9",
+  dessert: "#ec4899",
+  emballage: "#64748b",
+};
 
 const COUT_PAIN_FIXE = 0.5;
 
@@ -63,7 +55,20 @@ function getCoutParPortion(
   }
 }
 
-const MAX_INGREDIENTS = 16;
+function labelCategory(cat: IngredientCategory): string {
+  const labels: Record<IngredientCategory, string> = {
+    pain: "Pain",
+    viande: "Viande",
+    proteine_vegetarienne: "Protéine végétarienne",
+    fromage: "Fromage",
+    sauce: "Sauce",
+    legumes: "Légumes",
+    boisson: "Boisson",
+    dessert: "Dessert",
+    emballage: "Emballage",
+  };
+  return labels[cat] ?? cat;
+}
 
 interface Props {
   ingredients: Ingredient[];
@@ -75,7 +80,7 @@ export function CostChart({ ingredients, quantites }: Props) {
     return (
       <div className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
         <h3 className="font-heading text-lg font-bold text-stone-900">
-          Coût moyen des ingrédients dans un menu
+          Coût moyen par catégorie dans un menu
         </h3>
         <div className="mt-6 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50/50 py-12 text-center">
           <p className="text-sm text-stone-500">
@@ -86,56 +91,27 @@ export function CostChart({ ingredients, quantites }: Props) {
     );
   }
 
-  const withCost = ingredients.map((ing) => ({
-    ing,
-    cost: getCoutParPortion(ing, quantites),
-  }));
-  const sorted = [...withCost].sort((a, b) => b.cost - a.cost);
-  const top = sorted.slice(0, MAX_INGREDIENTS);
+  const byCategory = new Map<IngredientCategory, number[]>();
+  for (const ing of ingredients) {
+    const cost = getCoutParPortion(ing, quantites);
+    const list = byCategory.get(ing.categorie) ?? [];
+    list.push(cost);
+    byCategory.set(ing.categorie, list);
+  }
 
-  const labels = top.map(({ ing }) =>
-    ing.nom.length > 22 ? ing.nom.slice(0, 19) + "…" : ing.nom
-  );
-  const dataValues = top.map(({ cost }) => Math.round(cost * 100) / 100);
-  const colors = top.map((_, i) => BAR_COLORS[i % BAR_COLORS.length]);
+  const categories = Array.from(byCategory.keys()).sort();
+  const averages = categories.map((cat) => {
+    const list = byCategory.get(cat)!;
+    const sum = list.reduce((a, b) => a + b, 0);
+    return list.length > 0 ? sum / list.length : 0;
+  });
 
-  const options: ChartOptions<"bar"> = {
-    indexAxis: "y",
-    responsive: true,
-    maintainAspectRatio: true,
-    aspectRatio: 1.2,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: (ctx) => {
-            const item = top[ctx.dataIndex];
-            return item ? `${item.ing.nom}: ${item.cost.toFixed(2)} € par portion` : "";
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-        title: { display: true, text: "Coût (€) par portion dans un menu" },
-        ticks: { maxTicksLimit: 6 },
-      },
-      y: {
-        ticks: {
-          font: { size: 11 },
-          autoSkip: false,
-        },
-      },
-    },
-  };
-
-  const data = {
-    labels,
+  const data: ChartData<"doughnut"> = {
+    labels: categories.map(labelCategory),
     datasets: [
       {
-        data: dataValues,
-        backgroundColor: colors,
+        data: averages.map((v) => Math.round(v * 100) / 100),
+        backgroundColor: categories.map((c) => CHART_COLORS[c] ?? "#94a3b8"),
         borderWidth: 0,
       },
     ],
@@ -144,13 +120,31 @@ export function CostChart({ ingredients, quantites }: Props) {
   return (
     <div className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8">
       <h3 className="font-heading text-lg font-bold text-stone-900">
-        Coût moyen des ingrédients dans un menu
+        Coût moyen par catégorie dans un menu
       </h3>
       <p className="mt-1 text-xs text-stone-500">
-        Coût par portion (selon les quantités du générateur). Top {MAX_INGREDIENTS} ingrédients.
+        Moyenne des coûts par portion des ingrédients utilisés dans les sandwichs, par catégorie.
       </p>
-      <div className="mt-4 h-[320px] sm:h-[380px]">
-        <Bar data={data} options={options} />
+      <div className="mt-6">
+        <Doughnut
+          data={data}
+          options={{
+            cutout: "58%",
+            plugins: {
+              legend: { position: "bottom" },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => {
+                    const cat = categories[ctx.dataIndex];
+                    const avg = averages[ctx.dataIndex];
+                    const count = byCategory.get(cat)?.length ?? 0;
+                    return `${labelCategory(cat)}: ${avg.toFixed(2)} € en moyenne (${count} ingrédient${count > 1 ? "s" : ""})`;
+                  },
+                },
+              },
+            },
+          }}
+        />
       </div>
     </div>
   );
