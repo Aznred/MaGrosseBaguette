@@ -121,6 +121,49 @@ export function useShoppingList() {
     setSelections((prev) => prev.filter((s) => s.sandwichId !== sandwichId));
   }, []);
 
+  /** Remplit la sélection à partir des ventes (ex. HelloAsso) : sandwich nom → quantité, puis génère la liste */
+  const loadFromOrders = useCallback(
+    (orders: { sandwich: string; boisson: string; dessert: string; quantity: number }[]) => {
+      const bySandwich = new Map<string, number>();
+      for (const o of orders) {
+        const q = o.quantity || 1;
+        bySandwich.set(o.sandwich, (bySandwich.get(o.sandwich) ?? 0) + q);
+      }
+      const newSelections: SandwichSelection[] = [];
+      for (const [nom, count] of bySandwich) {
+        if (count <= 0) continue;
+        const sandwich = sandwiches.find((s) => s.nom === nom);
+        if (sandwich) {
+          newSelections.push({ sandwichId: sandwich.id, sandwich, count });
+        }
+      }
+      setSelections(newSelections);
+      setStockByIngredientId({});
+      const allRows: AggregatedRow[] = [];
+      for (const sel of newSelections) {
+        allRows.push(...expandSandwich(sel.sandwich, sel.count, quantites));
+      }
+      const merged = mergeIngredients(allRows);
+      const newItems: ShoppingItem[] = merged.map((row) => {
+        const stock = 0;
+        const toBuy = row.quantity;
+        const priceEstimated = toBuy > 0 ? coutPortion(row.ingredient, toBuy) : 0;
+        return {
+          ingredientId: row.ingredientId,
+          ingredientName: row.ingredientName,
+          quantityNeeded: row.quantity,
+          unit: row.unit,
+          stock,
+          toBuy,
+          priceEstimated: Number(priceEstimated.toFixed(3)),
+          ingredient: row.ingredient,
+        };
+      });
+      setItems(newItems);
+    },
+    [sandwiches, quantites]
+  );
+
   const generateShoppingList = useCallback(() => {
     const allRows: AggregatedRow[] = [];
     for (const sel of selections) {
@@ -175,6 +218,7 @@ export function useShoppingList() {
     generateShoppingList,
     addSelection,
     removeSelection,
+    loadFromOrders,
     sandwiches,
   };
 }

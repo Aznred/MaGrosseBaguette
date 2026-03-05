@@ -160,16 +160,52 @@ export function genererSandwichs(
   return sandwiches.sort((a, b) => a.cout - b.cout);
 }
 
-/** Un menu par sandwich, coût = sandwich + moyenne(boissons) + moyenne(desserts) + emballage */
+/** Moyenne pondérée par les ventes : plus un produit est vendu, plus il pèse dans la moyenne */
+function moyennePonderee(
+  ingredients: Ingredient[],
+  ventes: Record<string, number>,
+  portionFn: (ing: Ingredient) => number
+): number {
+  if (ingredients.length === 0) return 0;
+  let totalCoutPondere = 0;
+  let totalQte = 0;
+  for (const ing of ingredients) {
+    const qte = ventes[ing.nom] ?? 0;
+    if (qte > 0) {
+      totalCoutPondere += portionFn(ing) * qte;
+      totalQte += qte;
+    }
+  }
+  if (totalQte > 0) return totalCoutPondere / totalQte;
+  return (
+    ingredients.reduce((s, ing) => s + portionFn(ing), 0) / ingredients.length
+  );
+}
+
+/** Un menu par sandwich, coût = sandwich + moyenne(boissons) + moyenne(desserts) + emballage.
+ * Les moyennes boisson/dessert sont pondérées par les ventes si ventesBoissons/ventesSnacks sont fournis. */
 export function genererMenus(
   sandwiches: Sandwich[],
   ingredients: Ingredient[],
   quantites: QuantitesUtilisation = QUANTITES_PAR_DEFAUT,
+  options?: { ventesBoissons?: Record<string, number>; ventesSnacks?: Record<string, number> }
 ): Menu[] {
   const boissons = ingredients.filter((i) => i.categorie === "boisson");
   const desserts = ingredients.filter((i) => i.categorie === "dessert");
   const emballages = ingredients.filter((i) => i.categorie === "emballage");
+  const ventesBoissons = options?.ventesBoissons ?? {};
+  const ventesSnacks = options?.ventesSnacks ?? {};
 
+  const avgCoutBoisson = moyennePonderee(
+    boissons,
+    ventesBoissons,
+    (b) => coutPortion(b, quantites.boisson)
+  );
+  const avgCoutDessert = moyennePonderee(
+    desserts,
+    ventesSnacks,
+    (d) => coutPortion(d, quantites.dessert)
+  );
   const coutEmballage = emballages.reduce(
     (sum, e) => sum + coutPortion(e, quantites.emballage),
     0,
@@ -184,18 +220,16 @@ export function genererMenus(
     prixParGramme: 0,
     modeTarif: "unite",
   };
-  const firstBoisson = boissons[0] ?? placeholderIngredient;
-  const firstDessert = desserts[0] ?? { ...placeholderIngredient, categorie: "dessert" as const };
+  const moyenneBoisson = { ...placeholderIngredient, nom: "Moyenne boissons" };
+  const moyenneDessert = { ...placeholderIngredient, nom: "Moyenne desserts", categorie: "dessert" as const };
 
   return sandwiches.map((s) => {
-    const coutBoisson = coutPortion(firstBoisson, quantites.boisson);
-    const coutDessert = coutPortion(firstDessert, quantites.dessert);
-    const coutTotal = s.cout + coutBoisson + coutDessert + coutEmballage;
+    const coutTotal = s.cout + avgCoutBoisson + avgCoutDessert + coutEmballage;
     return {
       id: uuid(),
       sandwich: s,
-      boisson: firstBoisson,
-      dessert: firstDessert,
+      boisson: moyenneBoisson,
+      dessert: moyenneDessert,
       emballage: emballages,
       coutEmballage: Number(coutEmballage.toFixed(3)),
       coutTotal: Number(coutTotal.toFixed(3)),

@@ -13,8 +13,10 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAnalyticsStore } from "@/store/analyticsStore";
 import { useIngredientsStore } from "@/store/ingredientsStore";
 import { exportAnalyticsReportCsv, printAnalyticsReportPdf } from "@/lib/analyticsExport";
+import Link from "next/link";
 import { getShoppingListFromProduction } from "@/lib/shoppingFromProduction";
-import { fetchHelloAssoOrders } from "@/services/helloasso";
+
+const HELLOASSO_STORAGE_KEY = "helloasso-config";
 
 export default function AnalyticsPage() {
   const {
@@ -38,6 +40,7 @@ export default function AnalyticsPage() {
   const [addQty, setAddQty] = useState("1");
   const [addError, setAddError] = useState<string | null>(null);
   const [helloAssoLoading, setHelloAssoLoading] = useState(false);
+  const [showHelloAssoHelp, setShowHelloAssoHelp] = useState(false);
 
   const sandwichNames = useMemo(
     () => [...new Set(sandwiches.map((s) => s.nom))],
@@ -122,10 +125,38 @@ export default function AnalyticsPage() {
   const handleImportHelloAsso = async () => {
     setHelloAssoLoading(true);
     try {
+      let apiUrl: string | undefined;
+      let accessToken: string | undefined;
+      try {
+        const raw = localStorage.getItem(HELLOASSO_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          apiUrl = parsed.apiUrl?.trim() || undefined;
+          accessToken = parsed.accessToken?.trim() || undefined;
+        }
+      } catch {
+        // ignore
+      }
       const defaultBoisson = boissonNames[0] ?? "";
       const defaultDessert = dessertNames[0] ?? "";
-      const orders = await fetchHelloAssoOrders(sandwichNames, defaultBoisson, defaultDessert);
-      if (orders.length > 0) addMenuOrders(orders);
+      const res = await fetch("/api/helloasso/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiUrl,
+          accessToken,
+          sandwichNames,
+          defaultBoisson,
+          defaultDessert,
+        }),
+      });
+      const data = await res.json();
+      const orders = (data.orders ?? []) as { sandwich: string; boisson: string; dessert: string; quantity: number }[];
+      if (orders.length > 0) {
+        addMenuOrders(orders);
+        const total = data.total ?? orders.reduce((s, o) => s + (o.quantity ?? 1), 0);
+        setSimulationClients(String(total));
+      }
     } finally {
       setHelloAssoLoading(false);
     }
@@ -287,14 +318,38 @@ export default function AnalyticsPage() {
           >
             Importer depuis la compta
           </button>
-          <button
-            type="button"
-            onClick={handleImportHelloAsso}
-            disabled={helloAssoLoading}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            {helloAssoLoading ? "Import…" : "Importer depuis HelloAsso"}
-          </button>
+          <div className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={handleImportHelloAsso}
+              disabled={helloAssoLoading}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              {helloAssoLoading ? "Import…" : "Importer depuis HelloAsso"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowHelloAssoHelp((v) => !v)}
+              className="text-left text-xs text-slate-500 underline hover:text-slate-700"
+            >
+              {showHelloAssoHelp ? "Masquer" : "Comment connecter HelloAsso ?"}
+            </button>
+            {showHelloAssoHelp && (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+                <p className="mb-2 font-medium text-slate-700">Lier HelloAsso</p>
+                <ol className="list-inside list-decimal space-y-1">
+                  <li>Sur la page <Link href="/shopping-list" className="font-medium text-emerald-700 underline">Liste de courses</Link>, indiquez le <strong>lien (URL)</strong> de votre API HelloAsso et optionnellement le token. Cliquez sur « Récupérer les ventes et remplir la liste » pour mettre à jour la liste en direct.</li>
+                  <li>Ou configurez en serveur : <code className="rounded bg-slate-200 px-1">.env.local</code> avec <code className="rounded bg-slate-200 px-1">HELLOASSO_API_URL</code> et <code className="rounded bg-slate-200 px-1">HELLOASSO_ACCESS_TOKEN</code>.</li>
+                  <li>Le nom du produit côté HelloAsso est comparé à vos noms de sandwichs (ex. « Lyonnais » → « Le Lyonnais »). Les ventes importées alimentent l’historique et la liste de courses.</li>
+                </ol>
+                <p className="mt-2">
+                  <Link href="/shopping-list" className="font-medium text-emerald-700 underline">
+                    → Aller à la Liste de courses pour configurer le lien et récupérer en direct
+                  </Link>
+                </p>
+              </div>
+            )}
+          </div>
           {menuOrders.length > 0 && (
             <button
               type="button"
@@ -367,9 +422,17 @@ export default function AnalyticsPage() {
       {/* Liste de courses (à partir de la production recommandée) */}
       {shoppingListFromProduction.length > 0 && (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
-            Liste de courses
-          </h2>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Liste de courses
+            </h2>
+            <Link
+              href="/shopping-list"
+              className="text-sm font-medium text-emerald-700 underline"
+            >
+              Voir et modifier la liste de courses →
+            </Link>
+          </div>
           <p className="mb-3 text-xs text-slate-500">
             Quantités d&apos;ingrédients nécessaires pour la production recommandée (grammages par sandwich appliqués).
           </p>

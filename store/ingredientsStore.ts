@@ -173,7 +173,10 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         cout: calculerCoutSandwich(s, state.quantites),
       }));
       const menus = ingredients.length
-        ? genererMenus(sandwiches, ingredients, state.quantites)
+        ? genererMenus(sandwiches, ingredients, state.quantites, {
+            ventesBoissons: state.ventesBoissons,
+            ventesSnacks: state.ventesSnacks,
+          })
         : [];
       return { ingredients, customSandwiches, sandwiches, menus };
     });
@@ -186,7 +189,12 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
       cout: calculerCoutSandwich(s, quantites),
     }));
     const sandwiches = customRecalcules;
-    const menus = ingredients.length ? genererMenus(sandwiches, ingredients, quantites) : [];
+      const menus = ingredients.length
+        ? genererMenus(sandwiches, ingredients, quantites, {
+            ventesBoissons: get().ventesBoissons,
+            ventesSnacks: get().ventesSnacks,
+          })
+        : [];
     set({ sandwiches, menus });
     get().persist();
   },
@@ -203,7 +211,10 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
       };
       const customSandwiches = [...state.customSandwiches, sandwich];
       const sandwiches = [...state.sandwiches, sandwich];
-      const menus = genererMenus(sandwiches, state.ingredients, state.quantites);
+      const menus = genererMenus(sandwiches, state.ingredients, state.quantites, {
+        ventesBoissons: state.ventesBoissons,
+        ventesSnacks: state.ventesSnacks,
+      });
       return { customSandwiches, sandwiches, menus };
     });
     get().persist();
@@ -226,6 +237,10 @@ export const useIngredientsStore = create<IngredientsState>((set, get) => ({
         sandwiches,
         state.ingredients,
         state.quantites,
+        {
+          ventesBoissons: state.ventesBoissons,
+          ventesSnacks: state.ventesSnacks,
+        }
       );
       return { customSandwiches, sandwiches, menus };
     });

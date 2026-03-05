@@ -1,8 +1,13 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { useShoppingList } from "@/hooks/useShoppingList";
+import { useIngredientsStore } from "@/store/ingredientsStore";
+import { useAnalyticsStore } from "@/store/analyticsStore";
 import { exportShoppingListToCsv, printShoppingListForPdf } from "@/lib/shoppingExport";
 import type { ShoppingItem } from "@/lib/types/shopping";
+
+const HELLOASSO_STORAGE_KEY = "helloasso-config";
 
 function formatQty(n: number, unit: "g" | "u"): string {
   return unit === "g" ? `${n} g` : `${n} unité(s)`;
@@ -67,8 +72,97 @@ export default function ShoppingListPage() {
     generateShoppingList,
     addSelection,
     removeSelection,
+    loadFromOrders,
     sandwiches,
   } = useShoppingList();
+  const { ingredients } = useIngredientsStore();
+  const { addMenuOrders } = useAnalyticsStore();
+
+  const [helloAssoUrl, setHelloAssoUrl] = useState("");
+  const [helloAssoToken, setHelloAssoToken] = useState("");
+  const [helloAssoLoading, setHelloAssoLoading] = useState(false);
+  const [helloAssoError, setHelloAssoError] = useState<string | null>(null);
+  const [helloAssoSuccess, setHelloAssoSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(HELLOASSO_STORAGE_KEY);
+      if (raw) {
+        const { apiUrl = "", accessToken = "" } = JSON.parse(raw);
+        setHelloAssoUrl(apiUrl);
+        setHelloAssoToken(accessToken);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const saveHelloAssoConfig = useCallback(() => {
+    localStorage.setItem(
+      HELLOASSO_STORAGE_KEY,
+      JSON.stringify({ apiUrl: helloAssoUrl.trim(), accessToken: helloAssoToken.trim() })
+    );
+  }, [helloAssoUrl, helloAssoToken]);
+
+  const fetchHelloAssoAndFillList = useCallback(async () => {
+    setHelloAssoError(null);
+    setHelloAssoSuccess(null);
+    const apiUrl = helloAssoUrl.trim() || undefined;
+    if (!apiUrl) {
+      setHelloAssoError("Indiquez le lien (URL) de l’API HelloAsso.");
+      return;
+    }
+    setHelloAssoLoading(true);
+    try {
+      const sandwichNames = sandwiches.map((s) => s.nom);
+      const drinks = ingredients.filter((i) => i.categorie === "boisson");
+      const desserts = ingredients.filter((i) => i.categorie === "dessert");
+      const defaultBoisson = drinks[0]?.nom ?? "";
+      const defaultDessert = desserts[0]?.nom ?? "";
+
+      const res = await fetch("/api/helloasso/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiUrl,
+          accessToken: helloAssoToken.trim() || undefined,
+          sandwichNames,
+          defaultBoisson,
+          defaultDessert,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setHelloAssoError(data.error ?? `Erreur ${res.status}`);
+        return;
+      }
+
+      const orders = data.orders ?? [];
+      if (orders.length === 0) {
+        setHelloAssoError("Aucun sandwich reconnu dans les ventes. Vérifiez les noms de produits côté HelloAsso.");
+        return;
+      }
+
+      loadFromOrders(orders);
+      addMenuOrders(orders);
+      const total = data.total ?? orders.reduce((s: number, o: { quantity?: number }) => s + (o.quantity ?? 1), 0);
+      setHelloAssoSuccess(`${orders.length} commande(s), ${total} menu(s) → liste de courses mise à jour.`);
+      saveHelloAssoConfig();
+    } catch (e) {
+      setHelloAssoError(e instanceof Error ? e.message : "Erreur réseau");
+    } finally {
+      setHelloAssoLoading(false);
+    }
+  }, [
+    helloAssoUrl,
+    helloAssoToken,
+    sandwiches,
+    ingredients,
+    loadFromOrders,
+    addMenuOrders,
+    saveHelloAssoConfig,
+  ]);
 
   const toBuyList = items.filter((i) => i.toBuy > 0);
 
@@ -84,6 +178,58 @@ export default function ShoppingListPage() {
           </p>
         </div>
       </header>
+
+      {/* HelloAsso : récupérer les ventes en direct → remplir la liste de courses */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          Récupérer les ventes HelloAsso en direct
+        </h2>
+        <p className="mb-3 text-xs text-slate-500">
+          Indiquez le lien (URL) de votre API HelloAsso pour récupérer les sandwichs vendus et remplir automatiquement la liste de courses.
+        </p>
+        <div className="space-y-2">
+          <div>
+            <label className="mb-1 block text-xs text-slate-500">Lien API (URL des commandes)</label>
+            <input
+              type="url"
+              value={helloAssoUrl}
+              onChange={(e) => setHelloAssoUrl(e.target.value)}
+              onBlur={saveHelloAssoConfig}
+              placeholder="https://api.helloasso.com/..."
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-slate-500">Token d’accès (optionnel)</label>
+            <input
+              type="password"
+              value={helloAssoToken}
+              onChange={(e) => setHelloAssoToken(e.target.value)}
+              onBlur={saveHelloAssoConfig}
+              placeholder="Bearer token si requis"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+            />
+          </div>
+          {helloAssoError && (
+            <p className="text-sm text-red-600" role="alert">
+              {helloAssoError}
+            </p>
+          )}
+          {helloAssoSuccess && (
+            <p className="text-sm text-emerald-700" role="status">
+              {helloAssoSuccess}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={fetchHelloAssoAndFillList}
+            disabled={helloAssoLoading || sandwiches.length === 0}
+            className="rounded-xl bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900 disabled:opacity-50"
+          >
+            {helloAssoLoading ? "Récupération…" : "Récupérer les ventes et remplir la liste"}
+          </button>
+        </div>
+      </section>
 
       {/* Section 1 : Sélection des sandwichs */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
