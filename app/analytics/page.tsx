@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
+  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -17,6 +18,32 @@ import Link from "next/link";
 import { getShoppingListFromProduction } from "@/lib/shoppingFromProduction";
 
 const HELLOASSO_STORAGE_KEY = "helloasso-config";
+
+const CHART_COLORS = [
+  "#0d9488",
+  "#059669",
+  "#0284c7",
+  "#7c3aed",
+  "#c026d3",
+  "#dc2626",
+  "#ea580c",
+  "#ca8a04",
+  "#16a34a",
+  "#0891b2",
+];
+
+function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
+  if (!active || !payload?.length || label == null) return null;
+  const value = payload[0]?.value ?? 0;
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg">
+      <p className="font-medium text-slate-800">{label}</p>
+      <p className="text-sm text-emerald-700">
+        Quantité : <strong>{value}</strong> vente{value > 1 ? "s" : ""}
+      </p>
+    </div>
+  );
+}
 
 export default function AnalyticsPage() {
   const {
@@ -364,7 +391,8 @@ export default function AnalyticsPage() {
 
       {/* Production recommandée (nombre de menus estimés → quantités à préparer) */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <span role="img" aria-hidden>📊</span>
           Production recommandée
         </h2>
         <p className="mb-3 text-xs text-slate-500">
@@ -379,6 +407,15 @@ export default function AnalyticsPage() {
             className="w-24 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
           />
           <span className="text-sm text-slate-600">menus / semaine</span>
+          {totalOrders > 0 && (
+            <button
+              type="button"
+              onClick={() => setSimulationClients(String(totalOrders))}
+              className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-100"
+            >
+              Appliquer les ventes de la semaine passée ({totalOrders} menus)
+            </button>
+          )}
         </div>
         {simulationResult && totalOrders > 0 && (
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -419,27 +456,35 @@ export default function AnalyticsPage() {
         )}
       </section>
 
-      {/* Liste de courses (à partir de la production recommandée) */}
+      {/* Liste de courses optimales pour la semaine prochaine */}
       {shoppingListFromProduction.length > 0 && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 p-4 shadow-sm">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-slate-900">
-              Liste de courses
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <span role="img" aria-hidden>🛒</span>
+              Liste de courses optimales pour la semaine prochaine
             </h2>
             <Link
               href="/shopping-list"
-              className="text-sm font-medium text-emerald-700 underline"
+              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
             >
-              Voir et modifier la liste de courses →
+              Voir et modifier →
             </Link>
           </div>
-          <p className="mb-3 text-xs text-slate-500">
-            Quantités d&apos;ingrédients nécessaires pour la production recommandée (grammages par sandwich appliqués).
+          <p className="mb-3 text-xs text-slate-600">
+            Selon vos ventes, voici les stocks à acheter pour la semaine prochaine (quantités calculées à partir des grammages par sandwich).
           </p>
-          <ul className="list-inside list-disc text-sm text-slate-700">
-            {shoppingListFromProduction.map((l) => (
-              <li key={`${l.ingredientName}-${l.unit}`}>
-                {l.ingredientName} → {l.quantity} {l.unit === "g" ? "g" : "unité(s)"}
+          <ul className="grid list-none gap-1.5 sm:grid-cols-2">
+            {shoppingListFromProduction.map((l, i) => (
+              <li
+                key={`${l.ingredientName}-${l.unit}`}
+                className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-white px-3 py-2 text-sm text-slate-800"
+              >
+                <span className="text-base" role="img" aria-hidden>{l.unit === "g" ? "📦" : "🥖"}</span>
+                <span className="min-w-0 flex-1 truncate font-medium">{l.ingredientName}</span>
+                <span className="shrink-0 font-mono text-emerald-700">
+                  {l.quantity} {l.unit === "g" ? "g" : "u"}
+                </span>
               </li>
             ))}
           </ul>
@@ -448,7 +493,8 @@ export default function AnalyticsPage() {
 
       {/* Statistiques sandwichs - Bar chart */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
+          <span role="img" aria-hidden>🥪</span>
           Sandwichs populaires
         </h2>
         {sandwichData.length === 0 ? (
@@ -456,11 +502,15 @@ export default function AnalyticsPage() {
         ) : (
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={sandwichData} layout="vertical" margin={{ left: 20, right: 20 }}>
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#0d9488" name="Quantité" radius={[0, 4, 4, 0]} />
+              <BarChart data={sandwichData} layout="vertical" margin={{ left: 8, right: 24 }}>
+                <XAxis type="number" tick={{ fontSize: 11 }} />
+                <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
+                <Bar dataKey="count" name="Quantité" radius={[0, 6, 6, 0]} label={{ position: "right", fontSize: 11 }}>
+                  {sandwichData.map((_, i) => (
+                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -470,7 +520,8 @@ export default function AnalyticsPage() {
       {/* Boissons + Desserts - Bar charts */}
       <div className="grid gap-6 md:grid-cols-2">
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <span role="img" aria-hidden>🥤</span>
             Boissons les plus choisies
           </h2>
           {drinkData.length === 0 ? (
@@ -478,18 +529,23 @@ export default function AnalyticsPage() {
           ) : (
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={drinkData} layout="vertical" margin={{ left: 20, right: 20 }}>
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#0d9488" name="Quantité" radius={[0, 4, 4, 0]} />
+                <BarChart data={drinkData} layout="vertical" margin={{ left: 8, right: 24 }}>
+                  <XAxis type="number" tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 10 }} />
+                  <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
+                  <Bar dataKey="count" name="Quantité" radius={[0, 6, 6, 0]} label={{ position: "right", fontSize: 11 }}>
+                    {drinkData.map((_, i) => (
+                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
           )}
         </section>
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <span role="img" aria-hidden>🍰</span>
             Desserts les plus choisis
           </h2>
           {dessertData.length === 0 ? (
@@ -497,11 +553,15 @@ export default function AnalyticsPage() {
           ) : (
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dessertData} layout="vertical" margin={{ left: 20, right: 20 }}>
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#059669" name="Quantité" radius={[0, 4, 4, 0]} />
+                <BarChart data={dessertData} layout="vertical" margin={{ left: 8, right: 24 }}>
+                  <XAxis type="number" tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 10 }} />
+                  <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
+                  <Bar dataKey="count" name="Quantité" radius={[0, 6, 6, 0]} label={{ position: "right", fontSize: 11 }}>
+                    {dessertData.map((_, i) => (
+                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
