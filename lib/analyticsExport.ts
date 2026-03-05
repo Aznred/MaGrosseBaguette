@@ -1,4 +1,5 @@
 import type { NameStat, TopMenuCombo, ProductionRecommendation, MenuRentability } from "./types/analytics";
+import type { ShoppingListLine } from "./shoppingFromProduction";
 
 function escapeCsv(s: string): string {
   return `"${String(s).replace(/"/g, '""')}"`;
@@ -12,7 +13,8 @@ export function exportAnalyticsReportCsv(
   recommendation: ProductionRecommendation,
   rentability: MenuRentability[],
   totalOrders: number,
-  costMoyen: number
+  costMoyen: number,
+  shoppingList: ShoppingListLine[] = []
 ): void {
   const rows: string[][] = [
     ["Rapport Analyste - Sandwich Planner"],
@@ -42,6 +44,9 @@ export function exportAnalyticsReportCsv(
     ["Recommandation production - Desserts", "Quantité"],
     ...recommendation.desserts.map((d) => [d.name, String(d.quantity)]),
     [],
+    ["Liste de courses", "Quantité", "Unité"],
+    ...shoppingList.map((l) => [l.ingredientName, String(l.quantity), l.unit === "g" ? "g" : "unité(s)"]),
+    [],
     ["Menus les plus rentables (marge estimée €)", "Marge"],
     ...rentability.slice(0, 20).map((r) => [r.label, `${r.margeEstimee.toFixed(2)} €`]),
   ];
@@ -63,14 +68,19 @@ export function printAnalyticsReportPdf(
   recommendation: ProductionRecommendation,
   rentability: MenuRentability[],
   totalOrders: number,
-  costMoyen: number
+  costMoyen: number,
+  shoppingList: ShoppingListLine[] = []
 ): void {
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
   const section = (title: string, lines: string[]) =>
-    `<h2>${title}</h2><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul>`;
+    `<h2>${escapeHtml(title)}</h2><ul>${lines.map((l) => `<li>${escapeHtml(l)}</li>`).join("")}</ul>`;
   const topMenusHtml = topMenus.slice(0, 15).map((t) => `${t.label} → ${t.count}`);
   const recSand = recommendation.sandwiches.map((s) => `${s.name} → ${s.quantity}`);
   const recBoisson = recommendation.boissons.map((b) => `${b.name} → ${b.quantity}`);
   const recDessert = recommendation.desserts.map((d) => `${d.name} → ${d.quantity}`);
+  const shoppingLines = shoppingList.map((l) => `${l.ingredientName} → ${l.quantity} ${l.unit === "g" ? "g" : "u"}`);
   const rentHtml = rentability.slice(0, 10).map((r) => `${r.label} → marge ${r.margeEstimee} €`);
   const content = `
     <!DOCTYPE html>
@@ -97,6 +107,7 @@ export function printAnalyticsReportPdf(
         ${section("Recommandation production - Sandwichs", recSand.slice(0, 10))}
         ${section("Recommandation production - Boissons", recBoisson.slice(0, 8))}
         ${section("Recommandation production - Desserts", recDessert.slice(0, 8))}
+        ${shoppingLines.length ? section("Liste de courses", shoppingLines) : ""}
         ${section("Menus les plus rentables", rentHtml)}
         <script>window.onload = () => window.print();</script>
       </body>

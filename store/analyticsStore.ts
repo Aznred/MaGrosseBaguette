@@ -33,9 +33,9 @@ export const useAnalyticsStore = create<AnalyticsState>()(
         set((state) => ({
           menuOrders: [
             ...state.menuOrders,
-            ...orders.map((o) => ({
+            ...orders.map((o, i) => ({
               ...o,
-              id: `order-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+              id: `order-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 9)}`,
               date: new Date().toISOString(),
             })),
           ],

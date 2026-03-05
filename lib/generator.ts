@@ -170,14 +170,6 @@ export function genererMenus(
   const desserts = ingredients.filter((i) => i.categorie === "dessert");
   const emballages = ingredients.filter((i) => i.categorie === "emballage");
 
-  const avgCoutBoisson =
-    boissons.length > 0
-      ? boissons.reduce((s, b) => s + coutPortion(b, quantites.boisson), 0) / boissons.length
-      : 0;
-  const avgCoutDessert =
-    desserts.length > 0
-      ? desserts.reduce((s, d) => s + coutPortion(d, quantites.dessert), 0) / desserts.length
-      : 0;
   const coutEmballage = emballages.reduce(
     (sum, e) => sum + coutPortion(e, quantites.emballage),
     0,
@@ -196,7 +188,9 @@ export function genererMenus(
   const firstDessert = desserts[0] ?? { ...placeholderIngredient, categorie: "dessert" as const };
 
   return sandwiches.map((s) => {
-    const coutTotal = s.cout + avgCoutBoisson + avgCoutDessert + coutEmballage;
+    const coutBoisson = coutPortion(firstBoisson, quantites.boisson);
+    const coutDessert = coutPortion(firstDessert, quantites.dessert);
+    const coutTotal = s.cout + coutBoisson + coutDessert + coutEmballage;
     return {
       id: uuid(),
       sandwich: s,

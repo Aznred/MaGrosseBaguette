@@ -4,10 +4,6 @@ import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -17,19 +13,8 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAnalyticsStore } from "@/store/analyticsStore";
 import { useIngredientsStore } from "@/store/ingredientsStore";
 import { exportAnalyticsReportCsv, printAnalyticsReportPdf } from "@/lib/analyticsExport";
-
-const CHART_COLORS = [
-  "#0d9488",
-  "#059669",
-  "#10b981",
-  "#34d399",
-  "#6ee7b7",
-  "#14b8a6",
-  "#2dd4bf",
-  "#5eead4",
-  "#99f6e4",
-  "#ccfbf1",
-];
+import { getShoppingListFromProduction } from "@/lib/shoppingFromProduction";
+import { fetchHelloAssoOrders } from "@/services/helloasso";
 
 export default function AnalyticsPage() {
   const {
@@ -44,26 +29,30 @@ export default function AnalyticsPage() {
     simulateWeek,
   } = useAnalytics();
   const { menuOrders, addMenuOrder, addMenuOrders, clearOrders } = useAnalyticsStore();
-  const { menus, sandwiches, ventesParNomSandwich } = useIngredientsStore();
+  const { menus, sandwiches, ventesParNomSandwich, ingredients, quantites } = useIngredientsStore();
 
   const [simulationClients, setSimulationClients] = useState<string>("200");
   const [addSandwich, setAddSandwich] = useState("");
   const [addBoisson, setAddBoisson] = useState("");
   const [addDessert, setAddDessert] = useState("");
   const [addQty, setAddQty] = useState("1");
+  const [addError, setAddError] = useState<string | null>(null);
+  const [helloAssoLoading, setHelloAssoLoading] = useState(false);
 
   const sandwichNames = useMemo(
     () => [...new Set(sandwiches.map((s) => s.nom))],
     [sandwiches]
   );
-  const boissonNames = useMemo(
-    () => [...new Set(menus.map((m) => m.boisson.nom))],
-    [menus]
+  const drinks = useMemo(
+    () => ingredients.filter((i) => i.categorie === "boisson"),
+    [ingredients]
   );
-  const dessertNames = useMemo(
-    () => [...new Set(menus.map((m) => m.dessert.nom))],
-    [menus]
+  const desserts = useMemo(
+    () => ingredients.filter((i) => i.categorie === "dessert"),
+    [ingredients]
   );
+  const boissonNames = useMemo(() => drinks.map((d) => d.nom), [drinks]);
+  const dessertNames = useMemo(() => desserts.map((d) => d.nom), [desserts]);
 
   const recommendation = generateProductionRecommendation;
   const rentability = getMenusRentability;
@@ -94,15 +83,52 @@ export default function AnalyticsPage() {
 
   const handleAddOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!addSandwich || !addBoisson || !addDessert) return;
-    const qty = parseInt(addQty, 10) || 1;
+    setAddError(null);
+    if (!addSandwich?.trim()) {
+      setAddError("Veuillez choisir un sandwich.");
+      return;
+    }
+    if (!addBoisson?.trim()) {
+      setAddError("Veuillez choisir une boisson.");
+      return;
+    }
+    if (!addDessert?.trim()) {
+      setAddError("Veuillez choisir un dessert.");
+      return;
+    }
+    const qty = parseInt(addQty, 10);
+    if (!Number.isFinite(qty) || qty < 1) {
+      setAddError("La quantité doit être au moins 1.");
+      return;
+    }
     addMenuOrder({
-      sandwich: addSandwich,
-      boisson: addBoisson,
-      dessert: addDessert,
+      sandwich: addSandwich.trim(),
+      boisson: addBoisson.trim(),
+      dessert: addDessert.trim(),
       quantity: qty,
     });
     setAddQty("1");
+  };
+
+  const shoppingListFromProduction = useMemo(() => {
+    if (!simulationResult || totalOrders <= 0) return [];
+    return getShoppingListFromProduction(
+      simulationResult.sandwiches.filter((s) => s.quantity > 0),
+      sandwiches,
+      quantites
+    );
+  }, [simulationResult, totalOrders, sandwiches, quantites]);
+
+  const handleImportHelloAsso = async () => {
+    setHelloAssoLoading(true);
+    try {
+      const defaultBoisson = boissonNames[0] ?? "";
+      const defaultDessert = dessertNames[0] ?? "";
+      const orders = await fetchHelloAssoOrders(sandwichNames, defaultBoisson, defaultDessert);
+      if (orders.length > 0) addMenuOrders(orders);
+    } finally {
+      setHelloAssoLoading(false);
+    }
   };
 
   const sandwichData = useMemo(
@@ -110,13 +136,18 @@ export default function AnalyticsPage() {
     [getSandwichStats]
   );
   const drinkData = useMemo(
-    () => getDrinkStats.map((s) => ({ name: s.name, value: s.count })),
+    () => getDrinkStats.map((s) => ({ name: s.name, count: s.count })),
     [getDrinkStats]
   );
   const dessertData = useMemo(
-    () => getDessertStats.map((s) => ({ name: s.name, value: s.count })),
+    () => getDessertStats.map((s) => ({ name: s.name, count: s.count })),
     [getDessertStats]
   );
+
+  const productionForExport = useMemo(() => {
+    if (simulationResult && totalOrders > 0) return simulationResult;
+    return recommendation;
+  }, [simulationResult, totalOrders, recommendation]);
 
   const handleExportCsv = () => {
     exportAnalyticsReportCsv(
@@ -124,10 +155,11 @@ export default function AnalyticsPage() {
       getDrinkStats,
       getDessertStats,
       topMenus,
-      recommendation,
+      productionForExport,
       rentability,
       totalOrders,
-      costMoyenMenu
+      costMoyenMenu,
+      shoppingListFromProduction
     );
   };
   const handleExportPdf = () => {
@@ -136,10 +168,11 @@ export default function AnalyticsPage() {
       getDrinkStats,
       getDessertStats,
       topMenus,
-      recommendation,
+      productionForExport,
       rentability,
       totalOrders,
-      costMoyenMenu
+      costMoyenMenu,
+      shoppingListFromProduction
     );
   };
 
@@ -180,14 +213,20 @@ export default function AnalyticsPage() {
         <p className="mb-3 text-xs text-slate-500">
           {totalOrders} commande(s) enregistrée(s). Enregistrez des ventes menu (sandwich + boisson + dessert) pour alimenter les statistiques.
         </p>
+        {addError && (
+          <p className="mb-3 text-sm font-medium text-red-600" role="alert">
+            {addError}
+          </p>
+        )}
         <div className="flex flex-wrap gap-3">
           <form onSubmit={handleAddOrder} className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500">Sandwich</label>
+              <label className="text-xs text-slate-500">Sandwich *</label>
               <select
                 value={addSandwich}
-                onChange={(e) => setAddSandwich(e.target.value)}
+                onChange={(e) => { setAddSandwich(e.target.value); setAddError(null); }}
                 className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                aria-required
               >
                 <option value="">Choisir…</option>
                 {sandwichNames.map((n) => (
@@ -196,11 +235,12 @@ export default function AnalyticsPage() {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500">Boisson</label>
+              <label className="text-xs text-slate-500">Boisson *</label>
               <select
                 value={addBoisson}
-                onChange={(e) => setAddBoisson(e.target.value)}
+                onChange={(e) => { setAddBoisson(e.target.value); setAddError(null); }}
                 className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                aria-required
               >
                 <option value="">Choisir…</option>
                 {boissonNames.map((n) => (
@@ -209,11 +249,12 @@ export default function AnalyticsPage() {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500">Dessert</label>
+              <label className="text-xs text-slate-500">Dessert *</label>
               <select
                 value={addDessert}
-                onChange={(e) => setAddDessert(e.target.value)}
+                onChange={(e) => { setAddDessert(e.target.value); setAddError(null); }}
                 className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                aria-required
               >
                 <option value="">Choisir…</option>
                 {dessertNames.map((n) => (
@@ -222,13 +263,14 @@ export default function AnalyticsPage() {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500">Qté</label>
+              <label className="text-xs text-slate-500">Quantité *</label>
               <input
                 type="number"
                 min={1}
                 value={addQty}
-                onChange={(e) => setAddQty(e.target.value)}
+                onChange={(e) => { setAddQty(e.target.value); setAddError(null); }}
                 className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
+                aria-required
               />
             </div>
             <button
@@ -245,6 +287,14 @@ export default function AnalyticsPage() {
           >
             Importer depuis la compta
           </button>
+          <button
+            type="button"
+            onClick={handleImportHelloAsso}
+            disabled={helloAssoLoading}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            {helloAssoLoading ? "Import…" : "Importer depuis HelloAsso"}
+          </button>
           {menuOrders.length > 0 && (
             <button
               type="button"
@@ -257,13 +307,13 @@ export default function AnalyticsPage() {
         </div>
       </section>
 
-      {/* Simulation semaine */}
+      {/* Production recommandée (nombre de menus estimés → quantités à préparer) */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-slate-900">
-          Simulation semaine
+          Production recommandée
         </h2>
         <p className="mb-3 text-xs text-slate-500">
-          Nombre de clients estimés : le système calcule les quantités à préparer en proportion des ventes passées.
+          Saisissez le nombre de menus estimés pour la semaine : le système calcule combien préparer de chaque sandwich, boisson et dessert (proportions basées sur l&apos;historique).
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <input
@@ -278,11 +328,11 @@ export default function AnalyticsPage() {
         {simulationResult && totalOrders > 0 && (
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div>
-              <p className="mb-1 text-xs font-medium text-slate-500">Sandwichs à préparer</p>
+              <p className="mb-1 text-xs font-medium text-slate-500">Sandwichs</p>
               <ul className="list-inside list-disc text-sm text-slate-700">
                 {simulationResult.sandwiches
                   .filter((s) => s.quantity > 0)
-                  .slice(0, 8)
+                  .slice(0, 12)
                   .map((s) => (
                     <li key={s.name}>{s.name} → {s.quantity}</li>
                   ))}
@@ -293,7 +343,7 @@ export default function AnalyticsPage() {
               <ul className="list-inside list-disc text-sm text-slate-700">
                 {simulationResult.boissons
                   .filter((b) => b.quantity > 0)
-                  .slice(0, 6)
+                  .slice(0, 10)
                   .map((b) => (
                     <li key={b.name}>{b.name} → {b.quantity}</li>
                   ))}
@@ -304,7 +354,7 @@ export default function AnalyticsPage() {
               <ul className="list-inside list-disc text-sm text-slate-700">
                 {simulationResult.desserts
                   .filter((d) => d.quantity > 0)
-                  .slice(0, 6)
+                  .slice(0, 10)
                   .map((d) => (
                     <li key={d.name}>{d.name} → {d.quantity}</li>
                   ))}
@@ -313,6 +363,25 @@ export default function AnalyticsPage() {
           </div>
         )}
       </section>
+
+      {/* Liste de courses (à partir de la production recommandée) */}
+      {shoppingListFromProduction.length > 0 && (
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+            Liste de courses
+          </h2>
+          <p className="mb-3 text-xs text-slate-500">
+            Quantités d&apos;ingrédients nécessaires pour la production recommandée (grammages par sandwich appliqués).
+          </p>
+          <ul className="list-inside list-disc text-sm text-slate-700">
+            {shoppingListFromProduction.map((l) => (
+              <li key={`${l.ingredientName}-${l.unit}`}>
+                {l.ingredientName} → {l.quantity} {l.unit === "g" ? "g" : "unité(s)"}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Statistiques sandwichs - Bar chart */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -335,7 +404,7 @@ export default function AnalyticsPage() {
         )}
       </section>
 
-      {/* Boissons + Desserts - Pie charts côte à côte */}
+      {/* Boissons + Desserts - Bar charts */}
       <div className="grid gap-6 md:grid-cols-2">
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-900">
@@ -344,55 +413,33 @@ export default function AnalyticsPage() {
           {drinkData.length === 0 ? (
             <p className="text-sm text-slate-500">Aucune donnée.</p>
           ) : (
-            <div className="h-64 w-full">
+            <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={drinkData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label={({ name, value }) => `${name} (${value})`}
-                  >
-                    {drinkData.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
+                <BarChart data={drinkData} layout="vertical" margin={{ left: 20, right: 20 }}>
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Legend />
-                </PieChart>
+                  <Bar dataKey="count" fill="#0d9488" name="Quantité" radius={[0, 4, 4, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           )}
         </section>
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-900">
-            Desserts les plus utilisés
+            Desserts les plus choisis
           </h2>
           {dessertData.length === 0 ? (
             <p className="text-sm text-slate-500">Aucune donnée.</p>
           ) : (
-            <div className="h-64 w-full">
+            <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={dessertData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label={({ name, value }) => `${name} (${value})`}
-                  >
-                    {dessertData.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
+                <BarChart data={dessertData} layout="vertical" margin={{ left: 20, right: 20 }}>
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Legend />
-                </PieChart>
+                  <Bar dataKey="count" fill="#059669" name="Quantité" radius={[0, 4, 4, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           )}
@@ -424,43 +471,6 @@ export default function AnalyticsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-      </section>
-
-      {/* Recommandation production */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
-          Recommandation production (basée sur l&apos;historique)
-        </h2>
-        {totalOrders === 0 ? (
-          <p className="text-sm text-slate-500">Enregistrez des ventes pour obtenir une recommandation.</p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div>
-              <p className="mb-2 text-xs font-medium text-slate-500">Sandwichs</p>
-              <ul className="space-y-1 text-sm text-slate-700">
-                {recommendation.sandwiches.slice(0, 10).map((s) => (
-                  <li key={s.name}>{s.name} → {s.quantity}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="mb-2 text-xs font-medium text-slate-500">Boissons</p>
-              <ul className="space-y-1 text-sm text-slate-700">
-                {recommendation.boissons.slice(0, 8).map((b) => (
-                  <li key={b.name}>{b.name} → {b.quantity}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="mb-2 text-xs font-medium text-slate-500">Desserts</p>
-              <ul className="space-y-1 text-sm text-slate-700">
-                {recommendation.desserts.slice(0, 8).map((d) => (
-                  <li key={d.name}>{d.name} → {d.quantity}</li>
-                ))}
-              </ul>
-            </div>
           </div>
         )}
       </section>
