@@ -10,6 +10,8 @@ const NAV_ITEMS = [
   { href: "/ingredients", label: "Ingrédients" },
   { href: "/generateur", label: "Générateur" },
   { href: "/planificateur", label: "Planificateur" },
+  { href: "/shopping-list", label: "Liste de courses" },
+  { href: "/analytics", label: "Analyste" },
   { href: "/compta", label: "Comptabilité" },
 ];
 
