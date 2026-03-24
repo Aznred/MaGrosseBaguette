@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from "fs/promises";
 import path from "path";
 import type { Ingredient } from "./types";
+import { METRO_DEFAULT_CATALOG } from "./metroDefaultCatalog";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const METRO_PRODUCTS_FILE = path.join(DATA_DIR, "metro-products.json");
@@ -15,9 +16,10 @@ export async function readMetroProducts(): Promise<MetroProductRecord[]> {
   try {
     const raw = await readFile(METRO_PRODUCTS_FILE, "utf-8");
     const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
+    const products = Array.isArray(data) ? data : [];
+    return products.length > 0 ? products : METRO_DEFAULT_CATALOG;
   } catch {
-    return [];
+    return METRO_DEFAULT_CATALOG;
   }
 }
 
