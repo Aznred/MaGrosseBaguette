@@ -3,9 +3,11 @@
 import { useEffect, useRef } from "react";
 import { useIngredientsStore } from "@/store/ingredientsStore";
 import type { PersistPayload } from "@/lib/persistTypes";
+import type { MetroProductRecord } from "@/lib/metroProductsDb";
 
 export function PersistLoader() {
   const hydrate = useIngredientsStore((s) => s.hydrate);
+  const addIngredients = useIngredientsStore((s) => s.addIngredients);
   const loaded = useRef(false);
 
   useEffect(() => {
@@ -31,9 +33,19 @@ export function PersistLoader() {
         (data.ventesSnacks && Object.keys(data.ventesSnacks).length > 0);
       if (hasIngredients || hasCustomSandwiches || hasVentes) {
         hydrate(data);
+      } else {
+        // Aucune donnée persistée : charger le catalogue Metro par défaut
+        fetch("/api/metro-products?limit=500")
+          .then((r) => r.json())
+          .then((products: MetroProductRecord[]) => {
+            if (Array.isArray(products) && products.length > 0) {
+              addIngredients(products);
+            }
+          })
+          .catch(() => {});
       }
     }).catch(() => {});
-  }, [hydrate]);
+  }, [hydrate, addIngredients]);
 
   return null;
 }
